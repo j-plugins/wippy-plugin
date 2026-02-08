@@ -18,11 +18,26 @@
 - [ ] Configure the [CODECOV_TOKEN](https://docs.codecov.com/docs/quick-start) secret for automated test coverage reports on PRs
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
+[Github](https://github.com/j-plugins/wippy-plugin) | [Telegram](https://t.me/jb_plugins/755) | [Documentation](https://home.wj.wippy.ai) | [Donation](https://github.com/xepozz/xepozz?tab=readme-ov-file#become-a-sponsor)
 
-To keep everything working, do not remove `<!-- ... -->` sections. 
+## Wippy
+
+IntelliJ IDEA plugin that provides first-class support for the Wippy agentic platform. 
+It understands registry entry kinds (function.lua, agent.gen1, http.endpoint, etc.), validates YAML configurations, and offers smart navigation between entry definitions and their Lua implementations.
+
+The plugin also integrates with Wippy's documentation API to provide inline help and autocompletion for Wippy-specific Lua modules like llm, process, registry, and others — making it easier for both humans and AI agents to develop within the Wippy ecosystem.
+
+## Support the Project
+
+If you find this plugin useful, you can support its development:
+
+[<img height="28" src="https://github.githubassets.com/assets/patreon-96b15b9db4b9.svg"> Patreon](https://patreon.com/xepozz)
+|
+[<img height="28" src="https://github.githubassets.com/assets/buy_me_a_coffee-63ed78263f6e.svg"> Buy me a coffee](https://buymeacoffee.com/xepozz)
+|
+[<img height="28" src="https://boosty.to/favicon.ico"> Boosty](https://boosty.to/xepozz)
+
 <!-- Plugin description end -->
 
 ## Installation
