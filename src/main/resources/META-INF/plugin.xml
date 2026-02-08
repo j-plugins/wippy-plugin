@@ -7,7 +7,6 @@
     <depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="language-json.xml">com.intellij.modules.json</depends>
     <depends optional="true" config-file="language-yaml.xml">org.jetbrains.plugins.yaml</depends>
-    <depends config-file="language-lua.xml">com.cppcxy.Intellij-EmmyLua</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
