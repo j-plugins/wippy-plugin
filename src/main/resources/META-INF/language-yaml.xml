@@ -16,5 +16,15 @@
                 language="yaml"
                 implementationClass="com.github.xepozz.wippy.reference.WippyFileReferenceAnnotator"/>
 
+        <!-- method: → Lua function reference resolution -->
+        <psi.referenceContributor
+                language="yaml"
+                implementation="com.github.xepozz.wippy.reference.WippyMethodReferenceContributor"/>
+
+        <!-- Gutter icon: method → Lua function -->
+        <codeInsight.lineMarkerProvider
+                language="yaml"
+                implementationClass="com.github.xepozz.wippy.reference.WippyMethodLineMarkerProvider"/>
+
     </extensions>
 </idea-plugin>
