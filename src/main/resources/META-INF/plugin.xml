@@ -16,6 +16,15 @@
         <postStartupActivity implementation="com.github.xepozz.wippy.startup.MyProjectActivity" />
     </extensions>
     <extensions defaultExtensionNs="com.intellij">
+        <fileType
+                name="Wippy File"
+                implementationClass="com.github.xepozz.wippy.WippyFileType"
+                fieldName="INSTANCE"
+                language="yaml"
+                patterns="*.wippy.yaml"
+                fileNamesCaseInsensitive=".wippy.yaml"
+        />
+
         <spellchecker.bundledDictionaryProvider
                 implementation="com.github.xepozz.wippy.SpellcheckingDictionaryProvider"/>
 
