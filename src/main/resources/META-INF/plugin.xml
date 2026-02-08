@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.xepozz.wippyplugin</id>
-    <name>wippy-plugin</name>
+    <id>com.github.xepozz.wippy</id>
+    <name>Wippy</name>
     <vendor>xepozz</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -9,7 +9,7 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.xepozz.wippyplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.xepozz.wippyplugin.startup.MyProjectActivity" />
+        <toolWindow factoryClass="com.github.xepozz.wippy.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <postStartupActivity implementation="com.github.xepozz.wippy.startup.MyProjectActivity" />
     </extensions>
 </idea-plugin>

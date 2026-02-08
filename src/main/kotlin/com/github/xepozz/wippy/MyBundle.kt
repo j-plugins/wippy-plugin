@@ -1,4 +1,4 @@
-package com.github.xepozz.wippyplugin
+package com.github.xepozz.wippy
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

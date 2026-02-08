@@ -1,4 +1,4 @@
-package com.github.xepozz.wippyplugin.toolWindow
+package com.github.xepozz.wippy.toolWindow
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -8,8 +8,8 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import com.github.xepozz.wippyplugin.MyBundle
-import com.github.xepozz.wippyplugin.services.MyProjectService
+import com.github.xepozz.wippy.MyBundle
+import com.github.xepozz.wippy.services.MyProjectService
 import javax.swing.JButton
 
 

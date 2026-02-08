@@ -1,4 +1,4 @@
-package com.github.xepozz.wippyplugin.startup
+package com.github.xepozz.wippy.startup
 
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
