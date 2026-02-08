@@ -26,7 +26,6 @@ class WippyMethodLineMarkerProvider : LineMarkerProvider {
         val methodName = yamlScalar.textValue
         if (methodName.isBlank()) return null
 
-        // Verify the reference actually resolves
         val refs = yamlScalar.references
         val target = refs.firstOrNull { it is WippyMethodReference }
             ?.resolve()

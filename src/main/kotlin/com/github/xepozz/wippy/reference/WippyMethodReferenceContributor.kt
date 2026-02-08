@@ -8,10 +8,6 @@ import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 
-/**
- * Resolves `method: call` → the Lua function `call` in the file from `source: file://...`
- * within the same entry block in _index.yaml.
- */
 class WippyMethodReferenceContributor : PsiReferenceContributor() {
 
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
@@ -34,10 +30,8 @@ class WippyMethodReferenceContributor : PsiReferenceContributor() {
                     val methodName = yamlScalar.textValue
                     if (methodName.isBlank()) return PsiReference.EMPTY_ARRAY
 
-                    // Find sibling `source:` in the same mapping
                     val sourceFile = findSiblingSource(keyValue) ?: return PsiReference.EMPTY_ARRAY
 
-                    // TextRange for the method name value
                     val rawText = yamlScalar.text
                     val nameStart = rawText.indexOf(methodName)
                     if (nameStart < 0) return PsiReference.EMPTY_ARRAY
@@ -46,10 +40,6 @@ class WippyMethodReferenceContributor : PsiReferenceContributor() {
                     return arrayOf(WippyMethodReference(yamlScalar, methodName, sourceFile, range))
                 }
 
-                /**
-                 * Walks up to the entry's YAML mapping and finds `source: file://...`,
-                 * then resolves it to a PsiFile.
-                 */
                 private fun findSiblingSource(methodKey: YAMLKeyValue): PsiFile? {
                     val mapping = methodKey.parent as? YAMLMapping ?: return null
 

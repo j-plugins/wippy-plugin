@@ -10,10 +10,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 
-/**
- * Shows a gutter icon (→) next to `source: file://...` lines in _index.yaml.
- * Clicking the icon navigates to the referenced Lua file.
- */
 class WippySourceLineMarkerProvider : LineMarkerProvider {
 
     companion object {
@@ -22,7 +18,6 @@ class WippySourceLineMarkerProvider : LineMarkerProvider {
     }
 
     override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
-        // Line markers must be registered on leaf elements to avoid duplicates
         val yamlScalar = element as? YAMLScalar ?: return null
 
         if (element.containingFile?.name != INDEX_FILENAME) return null
@@ -37,13 +32,12 @@ class WippySourceLineMarkerProvider : LineMarkerProvider {
         val containingDir = element.containingFile?.originalFile?.containingDirectory ?: return null
         val targetFile = containingDir.virtualFile.findFileByRelativePath(filePath) ?: return null
 
-        // Verify the file is resolvable
         PsiManager.getInstance(element.project).findFile(targetFile) ?: return null
 
         return LineMarkerInfo(
             element,
             element.textRange,
-            AllIcons.Actions.Forward, // → arrow icon
+            AllIcons.Actions.Forward,
             { "Navigate to ${targetFile.name}" },
             { _, elt ->
                 val dir = elt.containingFile?.originalFile?.containingDirectory ?: return@LineMarkerInfo

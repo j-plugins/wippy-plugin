@@ -8,10 +8,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 
-/**
- * Highlights unresolved `source: file://...` paths as errors in _index.yaml.
- * Shows a red underline + message when the referenced file doesn't exist.
- */
 class WippyFileReferenceAnnotator : Annotator {
 
     companion object {

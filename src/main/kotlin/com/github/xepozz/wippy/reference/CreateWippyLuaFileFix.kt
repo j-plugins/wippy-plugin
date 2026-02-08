@@ -8,10 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
 
-/**
- * Quick fix: creates a missing Lua file referenced by `source: file://...`
- * with a basic Wippy module template.
- */
 class CreateWippyLuaFileFix(
     private val filePath: String,
     private val baseDir: PsiDirectory
@@ -28,7 +24,6 @@ class CreateWippyLuaFileFix(
             val parts = filePath.split("/")
             var dir = baseDir
 
-            // Create subdirectories if needed (e.g., file://sub/module.lua)
             for (i in 0 until parts.size - 1) {
                 dir = dir.findSubdirectory(parts[i])
                     ?: dir.createSubdirectory(parts[i])
@@ -40,11 +35,9 @@ class CreateWippyLuaFileFix(
             val template = buildLuaTemplate(moduleName)
             val newFile = dir.createFile(fileName)
 
-            // Write template content
             val document = newFile.viewProvider.document ?: return@runWriteAction
             document.setText(template)
 
-            // Open the new file in editor
             newFile.virtualFile?.let {
                 FileEditorManager.getInstance(project).openFile(it, true)
             }
