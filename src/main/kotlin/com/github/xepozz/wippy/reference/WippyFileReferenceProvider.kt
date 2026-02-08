@@ -1,6 +1,5 @@
 package com.github.xepozz.wippy.reference
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
@@ -12,7 +11,6 @@ import org.jetbrains.yaml.psi.YAMLScalar
 class WippyFileReferenceProvider : PsiReferenceProvider() {
 
     companion object {
-        private const val FILE_PROTOCOL = "file://"
         private const val INDEX_FILENAME = "_index.yaml"
     }
 
@@ -29,19 +27,8 @@ class WippyFileReferenceProvider : PsiReferenceProvider() {
         if (keyValue?.keyText != "source") return PsiReference.EMPTY_ARRAY
 
         val text = yamlScalar.textValue
-        if (!text.startsWith(FILE_PROTOCOL)) return PsiReference.EMPTY_ARRAY
+        if (!text.startsWith(WippyFileReferenceSet.FILE_PROTOCOL)) return PsiReference.EMPTY_ARRAY
 
-        val filePath = text.removePrefix(FILE_PROTOCOL)
-        if (filePath.isBlank()) return PsiReference.EMPTY_ARRAY
-
-        val rawText = yamlScalar.text
-        val protocolStart = rawText.indexOf(FILE_PROTOCOL)
-        if (protocolStart < 0) return PsiReference.EMPTY_ARRAY
-
-        val pathStart = protocolStart + FILE_PROTOCOL.length
-        val pathEnd = pathStart + filePath.length
-        val range = TextRange(pathStart, pathEnd)
-
-        return arrayOf(WippyFileReference(yamlScalar, filePath, range))
+        return WippyFileReferenceSet(yamlScalar).allReferences.map { it as PsiReference }.toTypedArray()
     }
 }

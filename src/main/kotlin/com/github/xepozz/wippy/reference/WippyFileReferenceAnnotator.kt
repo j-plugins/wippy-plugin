@@ -11,7 +11,6 @@ import org.jetbrains.yaml.psi.YAMLScalar
 class WippyFileReferenceAnnotator : Annotator {
 
     companion object {
-        private const val FILE_PROTOCOL = "file://"
         private const val INDEX_FILENAME = "_index.yaml"
     }
 
@@ -24,9 +23,9 @@ class WippyFileReferenceAnnotator : Annotator {
         if (keyValue?.keyText != "source") return
 
         val text = yamlScalar.textValue
-        if (!text.startsWith(FILE_PROTOCOL)) return
+        if (!text.startsWith(WippyFileReferenceSet.FILE_PROTOCOL)) return
 
-        val filePath = text.removePrefix(FILE_PROTOCOL)
+        val filePath = text.removePrefix(WippyFileReferenceSet.FILE_PROTOCOL)
         if (filePath.isBlank()) {
             holder.newAnnotation(HighlightSeverity.ERROR, "Empty file path")
                 .range(yamlScalar)

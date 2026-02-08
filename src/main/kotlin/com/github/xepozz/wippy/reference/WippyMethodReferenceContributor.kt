@@ -13,12 +13,8 @@ class WippyMethodReferenceContributor : PsiReferenceContributor() {
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
         registrar.registerReferenceProvider(
             PlatformPatterns.psiElement(YAMLScalar::class.java)
-                .withParent(YAMLKeyValue::class.java)
-            ,
+                .withParent(YAMLKeyValue::class.java),
             object : PsiReferenceProvider() {
-                private val INDEX_FILENAME = "_index.yaml"
-                private val FILE_PROTOCOL = "file://"
-
                 override fun getReferencesByElement(
                     element: PsiElement,
                     context: ProcessingContext
@@ -47,9 +43,9 @@ class WippyMethodReferenceContributor : PsiReferenceContributor() {
                         ?.value?.let { it as? YAMLScalar }?.textValue
                         ?: return null
 
-                    if (!sourceValue.startsWith(FILE_PROTOCOL)) return null
+                    if (!sourceValue.startsWith(WippyFileReferenceSet.FILE_PROTOCOL)) return null
 
-                    val filePath = sourceValue.removePrefix(FILE_PROTOCOL)
+                    val filePath = sourceValue.removePrefix(WippyFileReferenceSet.FILE_PROTOCOL)
                     val containingDir = methodKey.containingFile?.originalFile?.containingDirectory
                         ?: return null
                     val vf = containingDir.virtualFile.findFileByRelativePath(filePath)

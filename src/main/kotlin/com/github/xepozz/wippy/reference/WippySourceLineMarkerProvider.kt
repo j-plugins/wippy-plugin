@@ -13,7 +13,6 @@ import org.jetbrains.yaml.psi.YAMLScalar
 class WippySourceLineMarkerProvider : LineMarkerProvider {
 
     companion object {
-        private const val FILE_PROTOCOL = "file://"
         private const val INDEX_FILENAME = "_index.yaml"
     }
 
@@ -26,9 +25,9 @@ class WippySourceLineMarkerProvider : LineMarkerProvider {
         if (keyValue?.keyText != "source") return null
 
         val text = yamlScalar.textValue
-        if (!text.startsWith(FILE_PROTOCOL)) return null
+        if (!text.startsWith(WippyFileReferenceSet.FILE_PROTOCOL)) return null
 
-        val filePath = text.removePrefix(FILE_PROTOCOL)
+        val filePath = text.removePrefix(WippyFileReferenceSet.FILE_PROTOCOL)
         val containingDir = element.containingFile?.originalFile?.containingDirectory ?: return null
         val targetFile = containingDir.virtualFile.findFileByRelativePath(filePath) ?: return null
 
