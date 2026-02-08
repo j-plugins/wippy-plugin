@@ -1,5 +1,6 @@
 package com.github.xepozz.wippy.reference
 
+import com.github.xepozz.wippy.util.isInWippyDefinitionFile
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
 import com.intellij.icons.AllIcons
@@ -12,17 +13,13 @@ import org.jetbrains.yaml.psi.YAMLScalar
 
 class WippySourceLineMarkerProvider : LineMarkerProvider {
 
-    companion object {
-        private const val INDEX_FILENAME = "_index.yaml"
-    }
-
     override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
-        val yamlScalar = element as? YAMLScalar ?: return null
+        val yamlScalar = element.parent as? YAMLScalar ?: return null
 
-        if (element.containingFile?.name != INDEX_FILENAME) return null
+        if (!yamlScalar.isInWippyDefinitionFile()) return null
 
-        val keyValue = PsiTreeUtil.getParentOfType(yamlScalar, YAMLKeyValue::class.java)
-        if (keyValue?.keyText != "source") return null
+        val keyValue = yamlScalar.parent as? YAMLKeyValue ?: return null
+        if (keyValue.keyText != "source") return null
 
         val text = yamlScalar.textValue
         if (!text.startsWith(WippyFileReferenceSet.FILE_PROTOCOL)) return null

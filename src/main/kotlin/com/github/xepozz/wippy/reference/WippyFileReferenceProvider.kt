@@ -1,5 +1,6 @@
 package com.github.xepozz.wippy.reference
 
+import com.github.xepozz.wippy.util.isInWippyDefinitionFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
@@ -10,18 +11,13 @@ import org.jetbrains.yaml.psi.YAMLScalar
 
 class WippyFileReferenceProvider : PsiReferenceProvider() {
 
-    companion object {
-        private const val INDEX_FILENAME = "_index.yaml"
-    }
-
     override fun getReferencesByElement(
         element: PsiElement,
         context: ProcessingContext
     ): Array<PsiReference> {
         val yamlScalar = element as? YAMLScalar ?: return PsiReference.EMPTY_ARRAY
 
-        val fileName = element.containingFile?.name ?: return PsiReference.EMPTY_ARRAY
-        if (fileName != INDEX_FILENAME) return PsiReference.EMPTY_ARRAY
+        if (!yamlScalar.isInWippyDefinitionFile()) return PsiReference.EMPTY_ARRAY
 
         val keyValue = PsiTreeUtil.getParentOfType(yamlScalar, YAMLKeyValue::class.java)
         if (keyValue?.keyText != "source") return PsiReference.EMPTY_ARRAY

@@ -1,5 +1,6 @@
 package com.github.xepozz.wippy.reference
 
+import com.github.xepozz.wippy.util.isInWippyDefinitionFile
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
@@ -10,14 +11,10 @@ import org.jetbrains.yaml.psi.YAMLScalar
 
 class WippyFileReferenceAnnotator : Annotator {
 
-    companion object {
-        private const val INDEX_FILENAME = "_index.yaml"
-    }
-
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val yamlScalar = element as? YAMLScalar ?: return
 
-        if (element.containingFile?.name != INDEX_FILENAME) return
+        if (!yamlScalar.isInWippyDefinitionFile()) return
 
         val keyValue = PsiTreeUtil.getParentOfType(yamlScalar, YAMLKeyValue::class.java)
         if (keyValue?.keyText != "source") return

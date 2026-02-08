@@ -1,5 +1,7 @@
 package com.github.xepozz.wippy.reference
 
+import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementResolveResult
@@ -28,6 +30,10 @@ class WippyMethodReference(
         return PsiTreeUtil
             .findChildrenOfAnyType(luaFile, LuaFuncDef::class.java, LuaLocalFuncDef::class.java)
             .mapNotNull { it.node.findChildByType(LuaTypes.ID)?.text }
+            .map {
+                LookupElementBuilder.create(it)
+                    .withIcon(AllIcons.Nodes.Function)
+            }
             .toTypedArray()
     }
 }

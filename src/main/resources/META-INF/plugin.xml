@@ -15,4 +15,27 @@
         <toolWindow factoryClass="com.github.xepozz.wippy.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="com.github.xepozz.wippy.startup.MyProjectActivity" />
     </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <spellchecker.bundledDictionaryProvider
+                implementation="com.github.xepozz.wippy.SpellcheckingDictionaryProvider"/>
+
+        <postStartupActivity
+                implementation="com.github.xepozz.wippy.project.WippySourceRootConfigurator"/>
+
+        <vfs.asyncListener
+                implementation="com.github.xepozz.wippy.project.WippyLockFileListener"/>
+        <notificationGroup id="Wippy" displayType="BALLOON"/>
+
+    </extensions>
+
+    <actions>
+        <group id="Wippy.ToolsMenu" text="Wippy" popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action
+                    id="Wippy.Rescan"
+                    class="com.github.xepozz.wippy.project.WippyRescanAction"
+                    text="Rescan Projects"
+                    description="Detect Wippy projects and configure source roots"/>
+        </group>
+    </actions>
 </idea-plugin>

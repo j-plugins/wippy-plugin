@@ -1,7 +1,10 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <!-- file:// reference resolution in _index.yaml -->
+        <!-- indexer for config files -->
+        <fileBasedIndex implementation="com.github.xepozz.wippy.index.WippyConfigIndex"/>
+
+        <!-- file:// reference resolution in Wippy config files -->
         <psi.referenceContributor
                 language="yaml"
                 implementation="com.github.xepozz.wippy.reference.WippyFileReferenceContributor"/>
@@ -25,6 +28,5 @@
         <codeInsight.lineMarkerProvider
                 language="yaml"
                 implementationClass="com.github.xepozz.wippy.reference.WippyMethodLineMarkerProvider"/>
-
     </extensions>
 </idea-plugin>

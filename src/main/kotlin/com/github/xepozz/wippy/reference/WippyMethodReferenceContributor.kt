@@ -1,5 +1,6 @@
 package com.github.xepozz.wippy.reference
 
+import com.github.xepozz.wippy.util.isInWippyDefinitionFile
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.*
@@ -20,6 +21,9 @@ class WippyMethodReferenceContributor : PsiReferenceContributor() {
                     context: ProcessingContext
                 ): Array<PsiReference> {
                     val yamlScalar = element as? YAMLScalar ?: return PsiReference.EMPTY_ARRAY
+
+                    if (!yamlScalar.isInWippyDefinitionFile()) return PsiReference.EMPTY_ARRAY
+
                     val keyValue = yamlScalar.parent as? YAMLKeyValue ?: return PsiReference.EMPTY_ARRAY
                     if (keyValue.keyText != "method") return PsiReference.EMPTY_ARRAY
 
