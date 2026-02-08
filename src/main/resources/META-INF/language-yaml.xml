@@ -1,5 +1,20 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
+        <!-- file:// reference resolution in _index.yaml -->
+        <psi.referenceContributor
+                language="yaml"
+                implementation="com.github.xepozz.wippy.reference.WippyFileReferenceContributor"/>
+
+        <!-- Gutter icon: source → Lua file -->
+        <codeInsight.lineMarkerProvider
+                language="yaml"
+                implementationClass="com.github.xepozz.wippy.reference.WippySourceLineMarkerProvider"/>
+
+        <!-- Annotator: highlights unresolved file:// references as errors -->
+        <annotator
+                language="yaml"
+                implementationClass="com.github.xepozz.wippy.reference.WippyFileReferenceAnnotator"/>
+
     </extensions>
 </idea-plugin>
