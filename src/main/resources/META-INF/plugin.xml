@@ -56,6 +56,15 @@
 
         <customUsageSearcher
                 implementation="com.github.xepozz.wippy.reference.WippyLuaFunctionUsageSearcher"/>
+
+        <configurationType
+                implementation="com.github.xepozz.wippy.run.WippyRunConfigurationType"/>
+        <runConfigurationProducer
+                implementation="com.github.xepozz.wippy.run.WippyRunConfigurationProducer"/>
+
+        <runLineMarkerContributor
+                language="WippyLua"
+                implementationClass="com.github.xepozz.wippy.reference.WippyLuaFunctionRunLineMarkerContributor"/>
     </extensions>
 
     <actions>
