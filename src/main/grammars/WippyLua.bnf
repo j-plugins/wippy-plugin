@@ -104,7 +104,13 @@ generic_for_stat ::= 'for' ident_list 'in' expr_list 'do' block 'end' {pin=1}
 
 func_def_stat ::= 'function' func_name func_body {pin=1}
 
-local_func_def_stat ::= 'local' 'function' IDENT func_body {pin=2}
+local_func_def_stat ::= 'local' 'function' IDENT func_body
+{
+    pin=2
+    implements=["com.intellij.psi.PsiNameIdentifierOwner" "com.intellij.psi.NavigatablePsiElement"]
+    extends="com.github.xepozz.wippy.lang.psi.impl.WippyLuaLocalFuncDefStatBaseImpl"
+}
+
 
 local_stat ::= 'local' typed_name_list ('=' expr_list)? {pin=1}
 
