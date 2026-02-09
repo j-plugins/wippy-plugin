@@ -35,8 +35,8 @@
         <spellchecker.bundledDictionaryProvider
                 implementation="com.github.xepozz.wippy.SpellcheckingDictionaryProvider"/>
 
-        <postStartupActivity
-                implementation="com.github.xepozz.wippy.project.WippySourceRootConfigurator"/>
+<!--        <postStartupActivity-->
+<!--                implementation="com.github.xepozz.wippy.project.WippySourceRootConfigurator"/>-->
 
         <vfs.asyncListener
                 implementation="com.github.xepozz.wippy.project.WippyLockFileListener"/>
