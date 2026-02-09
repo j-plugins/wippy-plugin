@@ -53,6 +53,9 @@
                 instance="com.github.xepozz.wippy.lsp.WippyLspConfigurable"
                 id="com.github.xepozz.wippy.lsp.settings.WippyLspConfigurable"
                 displayName="Wippy LSP"/>
+
+        <customUsageSearcher
+                implementation="com.github.xepozz.wippy.reference.WippyLuaFunctionUsageSearcher"/>
     </extensions>
 
     <actions>
