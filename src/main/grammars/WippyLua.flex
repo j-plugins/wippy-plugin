@@ -27,7 +27,7 @@ SINGLE_STR      = '([^'\\]|\\.)*'
 DOUBLE_STR      = \"([^\"\\]|\\.)*\"
 SHORT_STRING    = {SINGLE_STR} | {DOUBLE_STR}
 
-%state LONG_STRING, LONG_COMMENT, LINE_COMMENT
+%state LONG_STRING, LONG_COMMENT
 
 %%
 
@@ -115,11 +115,6 @@ SHORT_STRING    = {SINGLE_STR} | {DOUBLE_STR}
     {ID}                    { return WippyLuaTypes.IDENT; }
 
     [^]                     { return TokenType.BAD_CHARACTER; }
-}
-
-<LINE_COMMENT> {
-    [^\r\n]+                { yybegin(YYINITIAL); return WippyLuaTypes.LINE_COMMENT; }
-    [\r\n]                  { yybegin(YYINITIAL); return WippyLuaTypes.LINE_COMMENT; }
 }
 
 <LONG_COMMENT> {

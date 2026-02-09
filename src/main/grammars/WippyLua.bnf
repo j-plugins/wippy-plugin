@@ -79,7 +79,10 @@ private stat ::= do_block_stat
 private last_stat ::= return_stat | break_stat
 
 assign_or_call_stat ::= prefix_expr (',' prefix_expr)* '=' expr_list
-    | prefix_expr {pin(".*")=1}
+    | prefix_expr
+{
+//    pin(".*")=1
+}
 
 return_stat  ::= 'return' expr_list? ';'? {pin=1}
 break_stat   ::= 'break'
@@ -219,6 +222,7 @@ args ::= '(' expr_list? ')' | table_expr | STRING
 prefix_expr ::= prefix_expr_base prefix_expr_suffix*
 private prefix_expr_base ::= IDENT | '(' expr ')'
 private prefix_expr_suffix ::= '[' expr ']' | '.' name_or_keyword | args | ':' name_or_keyword args
+
 //// =============================================================================
 //// Table constructor
 //// =============================================================================
