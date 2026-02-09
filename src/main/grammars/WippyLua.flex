@@ -35,7 +35,7 @@ SHORT_STRING    = {SINGLE_STR} | {DOUBLE_STR}
     {WHITE_SPACE}           { return TokenType.WHITE_SPACE; }
 
     "--[" "="* "["          { bracketLevel = yylength() - 4; yybegin(LONG_COMMENT); return WippyLuaTypes.BLOCK_COMMENT; }
-    "--"                    { yybegin(LINE_COMMENT); return WippyLuaTypes.LINE_COMMENT; }
+    "--"[^\r\n]*            { return WippyLuaTypes.LINE_COMMENT; }
 
     "and"                   { return WippyLuaTypes.AND; }
     "break"                 { return WippyLuaTypes.BREAK; }
