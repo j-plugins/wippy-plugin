@@ -34,6 +34,9 @@
         <lang.elementManipulator
                 forClass="com.github.xepozz.wippy.lang.psi.impl.WippyLuaElementImpl"
                 implementationClass="com.github.xepozz.wippy.lang.WippyElementManipulator"/>
+        <annotator
+                language="WippyLua"
+                implementationClass="com.github.xepozz.wippy.lang.WippyAnnotator"/>
 
         <spellchecker.bundledDictionaryProvider
                 implementation="com.github.xepozz.wippy.SpellcheckingDictionaryProvider"/>
