@@ -11,8 +11,7 @@ class WippySocketLspServerDescriptor(project: Project, private val port: Int = 7
     override val lspCommunicationChannel: LspCommunicationChannel = LspCommunicationChannel.Socket(port, false)
 
     override fun isSupportedFile(file: VirtualFile): Boolean {
-        val ext = file.extension ?: return false
-        return ext == "lua"
+        return file.extension == "lua"
     }
 
     override fun createInitializationOptions(): Any {
@@ -32,5 +31,30 @@ class WippySocketLspServerDescriptor(project: Project, private val port: Int = 7
                 )
             )
         )
+    }
+
+    override fun findFileByUri(fileUri: String): VirtualFile? {
+        println("findFileByUri: $fileUri")
+        return super.findFileByUri(fileUri)
+            .also { println("findFileByUri result: $it") }
+    }
+
+    override fun findLocalFileByPath(path: String): VirtualFile? {
+        println("findLocalFileByPath: $path")
+        return super.findLocalFileByPath(path)
+            .also { println("findLocalFileByPath result: $it") }
+    }
+
+    override fun getFilePath(file: VirtualFile): String {
+        println("getFilePath: ${file.path}")
+        return super.getFilePath(file)
+            .also { println("getFilePath result: $it") }
+    }
+
+    override fun getFileUri(file: VirtualFile): String {
+        println("getFileUri: ${file.path}")
+//        return super.getFileUri(file)
+        return "wippy://app:${file.nameWithoutExtension}"
+            .also { println("getFileUri result: ${it}") }
     }
 }
