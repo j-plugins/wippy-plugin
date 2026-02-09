@@ -20,7 +20,8 @@ class WippyMethodReference(
 ) : PsiPolyVariantReferenceBase<PsiElement>(element, range, /* soft = */ false) {
     override fun multiResolve(p0: Boolean): Array<out ResolveResult?> {
 //        return emptyArray()
-        return findFunctionByName(luaFile, methodName)
+        return findFunctionsByName(luaFile, methodName)
+            .mapNotNull { it?.nameIdentifier }
             .let { PsiElementResolveResult.createResults(it) }
     }
 
@@ -37,7 +38,7 @@ class WippyMethodReference(
     private fun getLocalFunctions(luaFile: PsiFile): Collection<WippyLuaLocalFuncDefStat> = PsiTreeUtil
         .findChildrenOfAnyType(luaFile, WippyLuaLocalFuncDefStat::class.java)
 
-    private fun findFunctionByName(luaFile: PsiFile, methodName: String): List<WippyLuaLocalFuncDefStat?> =
+    private fun findFunctionsByName(luaFile: PsiFile, methodName: String): List<WippyLuaLocalFuncDefStat?> =
         getLocalFunctions(luaFile)
             .filter { it.node.findChildByType(WippyLuaTypes.IDENT)?.text == methodName }
 }

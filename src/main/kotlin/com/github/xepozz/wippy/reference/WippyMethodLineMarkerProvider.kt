@@ -5,10 +5,8 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProvider
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
-import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.elementType
+import com.intellij.util.PsiNavigateUtil
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 
@@ -25,15 +23,14 @@ class WippyMethodLineMarkerProvider : LineMarkerProvider {
         if (methodName.isBlank()) return null
 
         val refs = yamlScalar.references
-        val target = refs.firstOrNull { it is WippyMethodReference }
-            ?.resolve() as? NavigatablePsiElement ?: return null
+        val target = refs.firstOrNull { it is WippyMethodReference }?.resolve() ?: return null
 
         return LineMarkerInfo(
             element,
             element.textRange,
             AllIcons.Nodes.Function,
             { "Go to function '$methodName'" },
-            { _, _ -> target.navigate(true) },
+            { _, _ -> PsiNavigateUtil.navigate(target, true) },
             GutterIconRenderer.Alignment.LEFT,
             { "Navigate to Lua function" }
         )
