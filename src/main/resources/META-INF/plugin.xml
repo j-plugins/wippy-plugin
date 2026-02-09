@@ -26,9 +26,6 @@
         <colorSettingsPage
                 implementation="com.github.xepozz.wippy.lang.WippyLuaColorSettingsPage"/>
 
-        <postStartupActivity
-                implementation="com.github.xepozz.wippy.startup.MyProjectActivity"/>
-
         <spellchecker.bundledDictionaryProvider
                 implementation="com.github.xepozz.wippy.SpellcheckingDictionaryProvider"/>
 
