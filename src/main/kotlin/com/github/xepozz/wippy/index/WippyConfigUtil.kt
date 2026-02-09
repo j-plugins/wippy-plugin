@@ -18,11 +18,11 @@ object WippyConfigUtil {
     }
 
     fun isWippyConfigFile(psiFile: YAMLFile): Boolean {
-        val version = YAMLUtil.getQualifiedKeyInFile(psiFile, "version")?.valueText
-        val namespace = YAMLUtil.getQualifiedKeyInFile(psiFile, "namespace")?.valueText
+        val version = YAMLUtil.getQualifiedKeyInFile(psiFile, "version")
+        val namespace = YAMLUtil.getQualifiedKeyInFile(psiFile, "namespace")
+        val entries = YAMLUtil.getQualifiedKeyInFile(psiFile, "entries")
 
-        val re = version == "1.0" && namespace == "app"
-        return re
+        return version != null && namespace != null && entries != null
     }
 
 }
