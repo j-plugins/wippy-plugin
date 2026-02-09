@@ -16,7 +16,7 @@ class WippyLuaFunctionRunLineMarkerContributor : RunLineMarkerContributor() {
 
         val actions = ExecutorAction.getActions(0)
         return Info(
-            AllIcons.Nodes.Function,
+            AllIcons.Actions.Execute,
             actions,
             { "Run Wippy Function" }
         )
