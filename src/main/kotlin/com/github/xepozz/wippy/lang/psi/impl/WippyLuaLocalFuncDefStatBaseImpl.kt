@@ -1,15 +1,14 @@
 package com.github.xepozz.wippy.lang.psi.impl
 
+import com.github.xepozz.wippy.lang.psi.WippyLuaLocalFuncDefStat
 import com.github.xepozz.wippy.lang.psi.WippyLuaTypes
 import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.NlsSafe
-import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiNameIdentifierOwner
 
-abstract class WippyLuaLocalFuncDefStatBaseImpl : WippyLuaElementImpl, NavigatablePsiElement, PsiNameIdentifierOwner {
+abstract class WippyLuaLocalFuncDefStatBaseImpl : WippyLuaElementImpl, WippyLuaLocalFuncDefStat {
     constructor(node: ASTNode) : super(node)
 
     override fun getName(): String = text

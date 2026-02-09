@@ -112,15 +112,40 @@ local_func_def_stat ::= 'local' 'function' IDENT func_body
 }
 
 
-local_stat ::= 'local' typed_name_list ('=' expr_list)? {pin=1}
+local_stat ::= 'local' typed_name_list ('=' expr_list)?
+{
+    pin=1
+    implements=["com.intellij.psi.PsiNameIdentifierOwner" "com.intellij.psi.NavigatablePsiElement"]
+    extends="com.github.xepozz.wippy.lang.psi.impl.WippyLuaLocalStatBaseImpl"
+}
 
-label_stat ::= '::' IDENT '::' {pin=1}
+label_stat ::= '::' IDENT '::'
+{
+    pin=1
+    implements=["com.intellij.psi.PsiNameIdentifierOwner" "com.intellij.psi.NavigatablePsiElement"]
+    extends="com.github.xepozz.wippy.lang.psi.impl.WippyLuaLabelStatBaseImpl"
+}
 
-goto_stat ::= 'goto' IDENT {pin=1}
+goto_stat ::= 'goto' IDENT
+{
+    pin=1
+    implements=["com.intellij.psi.PsiNameIdentifierOwner" "com.intellij.psi.NavigatablePsiElement"]
+    extends="com.github.xepozz.wippy.lang.psi.impl.WippyLuaGotoStatBaseImpl"
+}
 
-type_def_stat ::= 'type' IDENT type_params? '=' type_expr {pin=1}
+type_def_stat ::= 'type' IDENT type_params? '=' type_expr
+{
+    pin=1
+    implements=["com.intellij.psi.PsiNameIdentifierOwner" "com.intellij.psi.NavigatablePsiElement"]
+    extends="com.github.xepozz.wippy.lang.psi.impl.WippyLuaTypeDefStatBaseImpl"
+}
 
-interface_def_stat ::= 'interface' IDENT interface_extends? interface_body 'end' {pin=1}
+interface_def_stat ::= 'interface' IDENT interface_extends? interface_body 'end'
+{
+    pin=1
+    implements=["com.intellij.psi.PsiNameIdentifierOwner" "com.intellij.psi.NavigatablePsiElement"]
+    extends="com.github.xepozz.wippy.lang.psi.impl.WippyLuaInterfaceDefStatBaseImpl"
+}
 
 //// =============================================================================
 //// Function constructs
