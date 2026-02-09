@@ -9,6 +9,14 @@
                 patterns="*.wippy.lock;wippy.lock;wippy.*.lock"
                 fileNamesCaseInsensitive="wippy.lock"
         />
+        <fileType
+                name="Wippy File"
+                implementationClass="com.github.xepozz.wippy.WippyFileType"
+                fieldName="INSTANCE"
+                language="yaml"
+                patterns="*.wippy.yaml"
+                fileNamesCaseInsensitive=".wippy.yaml"
+        />
 
         <fileBasedIndex implementation="com.github.xepozz.wippy.index.WippyConfigIndex"/>
 
