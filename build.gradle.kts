@@ -8,10 +8,18 @@ plugins {
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
+    alias(libs.plugins.grammarkit) // Gradle Grammar-Kit Plugin
 }
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
+sourceSets {
+    main {
+        java {
+            srcDirs("src/main/java", "src/main/gen")
+        }
+    }
+}
 
 // Set the JVM language level used to build the project.
 kotlin {
@@ -106,7 +114,29 @@ kover {
     }
 }
 
+sourceSets {
+    main {
+        java.srcDirs("src/main/gen")
+    }
+}
+
 tasks {
+    compileKotlin {
+        dependsOn("generateLexer", "generateParser")
+    }
+    compileJava {
+        dependsOn("generateLexer", "generateParser")
+    }
+    generateLexer {
+        sourceFile.set(file("src/main/grammars/WippyLua.flex"))
+        targetOutputDir.set(file("src/main/gen/com/github/xepozz/wippy/lang/lexer"))
+    }
+    generateParser {
+        sourceFile.set(file("src/main/grammars/WippyLua.bnf"))
+        targetRootOutputDir.set(file("src/main/gen"))
+        pathToParser.set("com/github/xepozz/wippy/lang/parser/WippyLuaParser.java")
+        pathToPsiRoot.set("com/github/xepozz/wippy/lang/psi")
+    }
     wrapper {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }
