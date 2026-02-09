@@ -11,6 +11,14 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <fileType name="WippyLua"
+                  implementationClass="com.github.xepozz.wippy.lang.WippyLuaFileType"
+                  fieldName="INSTANCE"
+                  language="WippyLua"
+                  extensions="lua"/>
+        <lang.parserDefinition language="WippyLua"
+                               implementationClass="com.github.xepozz.wippy.lang.WippyLuaParserDefinition"/>
+
         <toolWindow factoryClass="com.github.xepozz.wippy.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="com.github.xepozz.wippy.startup.MyProjectActivity" />
     </extensions>

@@ -1,0 +1,387 @@
+{
+    parserClass = "com.github.xepozz.wippy.lang.parser.WippyLuaParser"
+    extends = "com.intellij.extapi.psi.ASTWrapperPsiElement"
+//    generateTokenAccessors = false
+
+    psiClassPrefix = "WippyLua"
+    psiImplClassSuffix = "Impl"
+    psiPackage = "com.github.xepozz.wippy.lang.psi"
+    psiImplPackage = "com.github.xepozz.wippy.lang.psi.impl"
+
+    elementTypeHolderClass = "com.github.xepozz.wippy.lang.psi.WippyLuaTypes"
+    elementTypeClass = "com.github.xepozz.wippy.lang.psi.WippyLuaElementType"
+    tokenTypeClass = "com.github.xepozz.wippy.lang.psi.WippyLuaTokenType"
+
+    extends(".*_expr") = expr
+//    extends(".*_stat") = stat
+
+    tokens = [
+        AND='and'  BREAK='break'  DO='do'  ELSE='else'  ELSEIF='elseif'
+        END='end'  FALSE='false'  FOR='for'  FUNCTION='function'  GOTO='goto'
+        IF='if'  IN='in'  LOCAL='local'  NIL='nil'  NOT='not'  OR='or'
+        RETURN='return'  REPEAT='repeat'  THEN='then'  TRUE='true'
+        UNTIL='until'  WHILE='while'
+
+        TYPE_KW='type'  INTERFACE='interface'  READONLY='readonly'  AS='as'
+        ASSERTS='asserts'  IS='is'  TYPEOF='typeof'  KEYOF='keyof'
+        EXTENDS='extends'  FUN='fun'
+
+        PLUS='+'  MINUS='-'  MULT='*'  DIV='/'  MOD='%'  EXP='^'
+        LEN='#'  BAND='&'  BOR='|'  BNOT='~'
+        GT='>'  LT='<'  ASSIGN='='
+        LPAREN='('  RPAREN=')'  LBRACE='{'  RBRACE='}'
+        LBRACK='['  RBRACK=']'
+        SEMI=';'  COLON=':'  COMMA=','  DOT='.'
+        QUESTION='?'  BANG='!'  AT='@'
+
+        EQEQ='=='  NEQ='~='  LTE='<='  GTE='>='
+        CONCAT='..'  ELLIPSIS='...'  DCOLON='::'
+        SHL='<<'  SHR='>>'  IDIV='//'
+        ARROW='->'  QCOLON='?:'
+
+        IDENT="regexp:[a-zA-Z_]\w*"
+        NUMBER="regexp:\d+"
+        STRING="regexp:\"[^\"]*\""
+        LINE_COMMENT="regexp:--.*"
+        BLOCK_COMMENT="regexp:--\[\[.*]]"
+    ]
+}
+
+//// =============================================================================
+//// File / Block
+//// =============================================================================
+
+wippyLuaFile ::= block
+
+//private block ::= (stat ';'?)* last_stat?
+private block ::= (stat ';'?)+
+
+//// =============================================================================
+//// Statements
+//// =============================================================================
+
+private stat ::= do_block_stat
+    | while_stat
+    | repeat_stat
+    | if_stat
+    | numeric_for_stat
+    | generic_for_stat
+    | func_def_stat
+    | local_func_def_stat
+    | local_stat
+    | label_stat
+    | goto_stat
+    | type_def_stat
+    | interface_def_stat
+//    | assign_or_call_stat
+    | last_stat
+
+private last_stat ::= return_stat | break_stat
+
+assign_or_call_stat ::= prefix_expr (',' prefix_expr)* '=' expr_list
+    | prefix_expr {pin(".*")=1}
+
+return_stat  ::= 'return' expr_list? ';'? {pin=1}
+break_stat   ::= 'break'
+
+do_block_stat ::= 'do' block 'end' {pin=1}
+
+while_stat ::= 'while' expr 'do' block 'end' {pin=1}
+
+repeat_stat ::= 'repeat' block 'until' expr {pin=1}
+
+if_stat ::= 'if' expr 'then' block
+    ('elseif' expr 'then' block)*
+    ('else' block)?
+    'end' {pin=1}
+
+numeric_for_stat ::= 'for' IDENT '=' expr ',' expr (',' expr)? 'do' block 'end' {pin=1}
+
+generic_for_stat ::= 'for' ident_list 'in' expr_list 'do' block 'end' {pin=1}
+
+func_def_stat ::= 'function' func_name func_body {pin=1}
+
+local_func_def_stat ::= 'local' 'function' IDENT func_body {pin=2}
+
+local_stat ::= 'local' typed_name_list ('=' expr_list)? {pin=1}
+
+label_stat ::= '::' IDENT '::' {pin=1}
+
+goto_stat ::= 'goto' IDENT {pin=1}
+
+type_def_stat ::= 'type' IDENT type_params? '=' type_expr {pin=1}
+
+interface_def_stat ::= 'interface' IDENT interface_extends? interface_body 'end' {pin=1}
+
+//// =============================================================================
+//// Function constructs
+//// =============================================================================
+
+func_name ::= IDENT ('.' IDENT)* (':' name_or_keyword)?
+
+func_body ::= type_params? '(' param_list? ')' return_type_annot? block 'end'
+
+private param_list ::= typed_name_list (',' '...' (':' type_expr)?)?
+    | '...' (':' type_expr)?
+
+return_type_annot ::= ':' type_expr_list
+    | ':' '(' type_expr ',' type_expr_list ')'
+    | ':' '(' ')'
+
+//// =============================================================================
+//// Expressions — Pratt-style via Grammar-Kit
+//// =============================================================================
+
+expr ::= or_expr
+    | and_expr
+    | compare_group
+    | bor_expr
+    | bxor_expr
+    | band_expr
+    | shift_group
+    | concat_expr
+    | add_group
+    | mul_group
+    | unary_group
+    | exp_expr
+    | cast_group
+    | postfix_group
+    | primary_group
+
+left or_expr   ::= expr 'or' expr
+left and_expr  ::= expr 'and' expr
+
+private compare_group ::= eq_expr | neq_expr | lt_expr | gt_expr | lte_expr | gte_expr
+left eq_expr   ::= expr '==' expr
+left neq_expr  ::= expr '~=' expr
+left lt_expr   ::= expr '<' expr
+left gt_expr   ::= expr '>' expr
+left lte_expr  ::= expr '<=' expr
+left gte_expr  ::= expr '>=' expr
+
+left bor_expr  ::= expr '|' expr
+left bxor_expr ::= expr '~' expr
+left band_expr ::= expr '&' expr
+
+private shift_group ::= shl_expr | shr_expr
+left shl_expr  ::= expr '<<' expr
+left shr_expr  ::= expr '>>' expr
+
+left concat_expr ::= expr '..' expr {rightAssociative=true}
+
+private add_group ::= add_expr | sub_expr
+left add_expr  ::= expr '+' expr
+left sub_expr  ::= expr '-' expr
+
+private mul_group ::= mul_expr | div_expr | mod_expr | idiv_expr
+left mul_expr  ::= expr '*' expr
+left div_expr  ::= expr '/' expr
+left mod_expr  ::= expr '%' expr
+left idiv_expr ::= expr '//' expr
+
+private unary_group ::= unary_minus_expr | unary_not_expr | unary_len_expr | unary_bnot_expr
+unary_minus_expr ::= '-' expr
+unary_not_expr   ::= 'not' expr
+unary_len_expr   ::= '#' expr
+unary_bnot_expr  ::= '~' expr
+
+left exp_expr ::= expr '^' expr {rightAssociative=true}
+
+private cast_group ::= as_cast_expr | dcolon_cast_expr
+left as_cast_expr     ::= expr 'as' type_expr
+left dcolon_cast_expr ::= expr '::' type_expr
+
+//private postfix_group ::= non_nil_assert_expr | call_expr | index_expr | method_call_expr
+private postfix_group ::= non_nil_assert_expr | call_expr | method_call_expr
+left non_nil_assert_expr ::= expr '!'
+left call_expr           ::= expr args
+//left index_expr          ::= expr '[' expr ']' | expr '.' name_or_keyword
+left method_call_expr    ::= expr ':' name_or_keyword args
+
+private primary_group ::= literal_expr | closure_expr | paren_expr
+    | name_expr | table_expr | ellipsis_expr
+
+literal_expr  ::= NIL | FALSE | TRUE | NUMBER | STRING
+closure_expr  ::= 'function' func_body
+paren_expr    ::= '(' expr ')'
+name_expr     ::= IDENT
+ellipsis_expr ::= '...'
+
+args ::= '(' expr_list? ')' | table_expr | STRING
+
+prefix_expr ::= IDENT
+    | '(' expr ')'
+    | prefix_expr '[' expr ']'
+    | prefix_expr '.' name_or_keyword
+    | prefix_expr args
+    | prefix_expr ':' name_or_keyword args
+
+//// =============================================================================
+//// Table constructor
+//// =============================================================================
+
+table_expr ::= '{' field_list? '}'
+
+private field_list ::= field (field_sep field)* field_sep?
+
+field ::= field_key '=' expr
+    | '[' expr ']' '=' expr
+    | expr
+
+private field_key ::= IDENT | 'type' | 'interface' | 'readonly' | 'as'
+    | 'asserts' | 'is' | 'keyof' | 'extends'
+
+private field_sep ::= ',' | ';'
+
+//// =============================================================================
+//// Type expressions — recursive descent (not Pratt)
+//// =============================================================================
+
+type_expr ::= union_type_expr
+
+union_type_expr ::= intersection_type_expr ('|' intersection_type_expr)*
+
+intersection_type_expr ::= conditional_or_simple_type ('&' conditional_or_simple_type)*
+
+private conditional_or_simple_type ::= conditional_type_expr | simple_type_expr
+
+conditional_type_expr ::= simple_type_expr 'extends' simple_type_expr '?' type_expr ':' type_expr
+
+simple_type_expr ::= primary_type_expr type_suffix*
+
+private type_suffix ::= optional_suffix | array_suffix | index_access_suffix | annotation_suffix
+
+optional_suffix      ::= '?'
+array_suffix         ::= '[' ']'
+index_access_suffix  ::= '[' type_expr ']'
+annotation_suffix    ::= annotation+
+
+primary_type_expr ::= nil_type
+    | literal_type
+    | generic_type
+    | qualified_type
+    | name_type
+    | array_type
+    | map_type
+    | record_type
+    | empty_table_type
+    | function_type
+    | paren_function_type
+    | fun_type
+    | typeof_type
+    | keyof_type
+    | asserts_type
+    | readonly_array_type
+    | readonly_map_type
+    | readonly_record_type
+    | interface_record_type
+
+nil_type     ::= 'nil'
+literal_type ::= TRUE | FALSE | STRING | NUMBER
+
+name_type      ::= IDENT
+qualified_type ::= IDENT '.' IDENT
+generic_type   ::= IDENT '<' type_expr_list '>'
+
+array_type       ::= '{' type_expr '}'
+map_type         ::= '{' '[' type_expr ']' ':' type_expr '}'
+record_type      ::= '{' type_field_list '}'
+empty_table_type ::= '{' '}'
+
+readonly_array_type  ::= 'readonly' '{' type_expr '}'
+readonly_map_type    ::= 'readonly' '{' '[' type_expr ']' ':' type_expr '}'
+readonly_record_type ::= 'readonly' '{' type_field_list '}'
+
+interface_record_type ::= 'interface' '{' type_field_list? '}'
+
+function_type ::= '(' func_type_param_list? ')' '->' type_return_expr
+
+paren_function_type ::= '(' '(' func_type_param_list? ')' '->' type_return_expr ')'
+
+fun_type ::= 'fun' '(' func_type_param_list? ')' (':' type_return_expr)?
+    | 'fun' '(' ')'
+
+typeof_type ::= 'typeof' '(' expr ')'
+keyof_type  ::= 'keyof' '(' type_expr ')'
+
+asserts_type ::= 'asserts' IDENT ('is' type_expr)?
+
+private type_return_expr ::= '(' type_expr_list ')' | '(' ')' | type_expr
+
+type_expr_list ::= type_expr (',' type_expr)*
+
+//// =============================================================================
+//// Type fields (record / interface)
+//// =============================================================================
+
+private type_field_list ::= type_field (',' type_field)* ','?
+
+type_field ::= type_field_name ':' type_expr annotation_list?
+    | type_field_name '?:' type_expr annotation_list?
+
+private type_field_name ::= IDENT | 'type' | 'interface' | 'readonly' | 'as'
+    | 'asserts' | 'is' | 'keyof' | 'extends' | 'typeof'
+
+//// =============================================================================
+//// Function type params
+//// =============================================================================
+
+private func_type_param_list ::= func_type_param (',' func_type_param)*
+    | func_type_param (',' func_type_param)* ',' '...' type_expr
+    | '...' type_expr
+
+func_type_param ::= IDENT ':' type_expr | type_expr
+
+//// =============================================================================
+//// Type params (generics)
+//// =============================================================================
+
+type_params ::= '<' type_param_list '>'
+
+private type_param_list ::= type_param (',' type_param)*
+
+type_param ::= IDENT (':' type_expr)?
+
+//// =============================================================================
+//// Annotations
+//// =============================================================================
+
+annotation_list ::= annotation+
+
+annotation ::= '@' IDENT
+    | '@' IDENT '(' ')'
+    | '@' IDENT '(' expr_list ')'
+
+//// =============================================================================
+//// Interface definition
+//// =============================================================================
+
+interface_extends ::= ':' IDENT (',' IDENT)*
+
+interface_body ::= interface_method*
+
+interface_method ::= 'function' IDENT '(' typed_name_list? ')' return_type_annot?
+
+//// =============================================================================
+//// Helpers
+//// =============================================================================
+
+private ident_list ::= IDENT (',' IDENT)*
+
+private typed_name_list ::= typed_name (',' typed_name)*
+
+typed_name ::= IDENT (':' type_expr)?
+
+private expr_list ::= expr (',' expr)*
+
+name_or_keyword ::= IDENT
+    | 'type'
+    | 'interface'
+    | 'readonly'
+    | 'as'
+    | 'asserts'
+    | 'is'
+    | 'keyof'
+    | 'extends'
+    | 'typeof'
+    | 'fun'
