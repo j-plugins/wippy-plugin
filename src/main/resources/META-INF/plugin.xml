@@ -25,6 +25,9 @@
                 implementationClass="com.github.xepozz.wippy.lang.WippyLuaSyntaxHighlighterFactory"/>
         <colorSettingsPage
                 implementation="com.github.xepozz.wippy.lang.WippyLuaColorSettingsPage"/>
+        <lang.braceMatcher
+                language="WippyLua"
+                implementationClass="com.github.xepozz.wippy.lang.WippyLuaBraceMatcher"/>
 
         <spellchecker.bundledDictionaryProvider
                 implementation="com.github.xepozz.wippy.SpellcheckingDictionaryProvider"/>
