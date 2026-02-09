@@ -20,6 +20,11 @@
         <lang.parserDefinition
                 language="WippyLua"
                 implementationClass="com.github.xepozz.wippy.lang.WippyLuaParserDefinition"/>
+        <lang.syntaxHighlighterFactory
+                language="WippyLua"
+                implementationClass="com.github.xepozz.wippy.lang.WippyLuaSyntaxHighlighterFactory"/>
+        <colorSettingsPage
+                implementation="com.github.xepozz.wippy.lang.WippyLuaColorSettingsPage"/>
 
         <postStartupActivity
                 implementation="com.github.xepozz.wippy.startup.MyProjectActivity"/>
