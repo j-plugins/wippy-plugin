@@ -68,6 +68,18 @@
         <runConfigurationProducer
                 implementation="com.github.xepozz.wippy.run.WippyRunConfigurationProducer"/>
 
+        <fileBasedIndex
+                implementation="com.github.xepozz.wippy.index.WippyEntryIndex"/>
+
+        <applicationService
+                serviceImplementation="com.github.xepozz.wippy.tool.WippyToolSettings"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.github.xepozz.wippy.tool.WippyToolConfigurable"
+                id="com.github.xepozz.wippy.tool.WippyToolConfigurable"
+                displayName="Wippy"/>
+
         <runLineMarkerContributor
                 language="WippyLua"
                 implementationClass="com.github.xepozz.wippy.reference.WippyLuaFunctionRunLineMarkerContributor"/>
