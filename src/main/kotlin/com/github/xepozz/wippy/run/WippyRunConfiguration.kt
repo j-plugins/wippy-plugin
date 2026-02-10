@@ -5,6 +5,8 @@ import com.github.xepozz.wippy.tool.WippyToolType
 import com.intellij.execution.CommonProgramRunConfigurationParameters
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.Executor
+import com.intellij.execution.InputRedirectAware
+import com.intellij.execution.InputRedirectAware.InputRedirectOptionsImpl
 import com.intellij.execution.configuration.AbstractRunConfiguration
 import com.intellij.execution.configurations.CommandLineState
 import com.intellij.execution.configurations.ConfigurationFactory
@@ -17,8 +19,12 @@ import com.intellij.execution.process.ProcessHandlerFactory
 import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.target.LanguageRuntimeType
+import com.intellij.execution.target.TargetEnvironment
 import com.intellij.execution.target.TargetEnvironmentAwareRunProfile
+import com.intellij.execution.target.TargetEnvironmentAwareRunProfileState
 import com.intellij.execution.target.TargetEnvironmentConfiguration
+import com.intellij.execution.target.TargetEnvironmentRequest
+import com.intellij.execution.target.TargetProgressIndicator
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.options.SettingsEditor
@@ -31,6 +37,7 @@ class WippyRunConfiguration(
     name: String,
 ) : AbstractRunConfiguration(project, factory),
     TargetEnvironmentAwareRunProfile,
+    InputRedirectAware,
     CommonProgramRunConfigurationParameters
 {
     public override fun getOptions(): WippyRunConfigurationOptions =
@@ -44,7 +51,7 @@ class WippyRunConfiguration(
         val modules = ModuleManager.getInstance(project).modules
         val result: MutableList<Module?> = ArrayList<Module?>()
         for (module in modules) {
-            module
+            result.add(module)
 //            if (PythonSdkUtil.findPythonSdk(module) != null) {
 //                result.add(module)
 //            }
@@ -74,8 +81,12 @@ class WippyRunConfiguration(
         }
     }
 
+    override fun needPrepareTarget(): Boolean {
+        return true
+    }
+
     override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
-        return object : CommandLineState(environment) {
+        return object : CommandLineState(environment), TargetEnvironmentAwareRunProfileState {
             override fun startProcess(): ProcessHandler {
                 val opts = options
                 val toolId = opts.toolId ?: throw ExecutionException("Wippy tool is not selected")
@@ -105,26 +116,48 @@ class WippyRunConfiguration(
                         addParameters(additionalArgs.split(" "))
                     }
 
-                    setWorkDirectory(project.basePath)
+                    setWorkDirectory(opts.workingDirectory ?: project.basePath)
                 }
 
                 val handler = ProcessHandlerFactory.getInstance().createColoredProcessHandler(cmd)
                 ProcessTerminatedListener.attach(handler)
                 return handler
             }
+
+            override fun prepareTargetEnvironmentRequest(
+                request: TargetEnvironmentRequest,
+                targetProgressIndicator: TargetProgressIndicator
+            ) {
+
+            }
+
+            override fun handleCreatedTargetEnvironment(
+                targetEnvironment: TargetEnvironment,
+                targetProgressIndicator: TargetProgressIndicator
+            ) {
+            }
+
+        //
+//            override fun createCustomTargetEnvironmentRequest(): TargetEnvironmentRequest? {
+//                return LocalTargetEnvironmentRequest()
+//            }
         }
     }
 
     override fun canRunOn(target: TargetEnvironmentConfiguration): Boolean {
         println("canRunOn: $target")
         return true
+//        return target.runtimes.findByType(JavaLanguageRuntimeConfiguration::class.java) != null
     }
 
     override fun getDefaultLanguageRuntimeType(): LanguageRuntimeType<*>? {
-        return null
+        println("getDefaultLanguageRuntimeType")
+        return LanguageRuntimeType.EXTENSION_NAME.findExtension(WippyRuntimeType::class.java);
     }
 
-    private var myDefaultTargetName: String? = com.intellij.execution.target.local.LocalTargetType.LOCAL_TARGET_NAME
+    private var myDefaultTargetName: String? = null;
+    //com.intellij.execution.target.local.LocalTargetType.LOCAL_TARGET_NAME
+
     override fun getDefaultTargetName(): String? {
         return myDefaultTargetName
     }
@@ -142,13 +175,12 @@ class WippyRunConfiguration(
         return myProgramParameters
     }
 
-    private var myWorkingDirectory: String? = null
     override fun setWorkingDirectory(value: String?) {
-        myWorkingDirectory = value
+        options.workingDirectory = value
     }
 
     override fun getWorkingDirectory(): String? {
-        return myWorkingDirectory
+        return options.workingDirectory
     }
 
     private var myEnvs: Map<String?, String?> = emptyMap()
@@ -167,5 +199,10 @@ class WippyRunConfiguration(
 
     override fun isPassParentEnvs(): Boolean {
         return myPassParentEnvs
+    }
+
+    private val myInputRedirectOptions = InputRedirectOptionsImpl()
+    override fun getInputRedirectOptions(): InputRedirectAware.InputRedirectOptions {
+        return myInputRedirectOptions
     }
 }

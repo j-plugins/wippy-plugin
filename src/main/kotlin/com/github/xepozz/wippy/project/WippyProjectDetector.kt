@@ -5,10 +5,12 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.VirtualFileVisitor
+import com.intellij.psi.PsiManager
 import org.jetbrains.yaml.YAMLUtil
 import org.jetbrains.yaml.psi.YAMLFile
-import com.intellij.psi.PsiManager
+import java.nio.file.Path
 
 /**
  * Scans the IntelliJ project for `wippy.lock` files and builds [WippyProject] models.
@@ -70,11 +72,27 @@ class WippyProjectDetector(private val project: Project) {
                 ?.removePrefix("./")
                 ?: ".wippy"
 
+            val path = Path.of(lockFile.path, "..", srcPath)
+            val srcDirectory = VirtualFileManager.getInstance().findFileByNioPath(path) ?: return null
+            val namespaces = mutableMapOf<String, VirtualFile>()
+            VfsUtilCore.visitChildrenRecursively(srcDirectory, object : VirtualFileVisitor<Unit>() {
+                override fun visitFile(file: VirtualFile): Boolean {
+                    if (file.isDirectory) return file.name !in SKIP_DIRS
+                    if (file.extension !in arrayOf("yml", "yaml")) return false
+                    val psiFile = PsiManager.getInstance(project).findFile(file) as? YAMLFile ?: return false
+                    val namespace = YAMLUtil.getQualifiedKeyInFile(psiFile, "namespace") ?: return false
+
+                    namespaces[namespace.valueText]=file.parent
+                    return true
+                }
+            })
+
             WippyProject(
                 root = root,
                 lockFile = lockFile,
                 srcDir = root.findFileByRelativePath(srcPath),
                 modulesDir = root.findFileByRelativePath(modulesPath),
+                namespaces = namespaces,
             )
         } catch (e: ReadAction.CannotReadException) {
             throw e
@@ -89,5 +107,6 @@ class WippyProjectDetector(private val project: Project) {
         lockFile = lockFile,
         srcDir = root.findChild("src"),
         modulesDir = root.findChild(".wippy"),
+        namespaces = emptyMap(),
     )
 }

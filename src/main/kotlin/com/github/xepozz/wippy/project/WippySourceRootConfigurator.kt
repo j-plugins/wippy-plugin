@@ -1,7 +1,8 @@
 package com.github.xepozz.wippy.project
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.application.readAction
-import com.intellij.openapi.application.writeAction
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
@@ -23,8 +24,12 @@ class WippySourceRootConfigurator : ProjectActivity {
 
         if (count == 0) return
 
-        writeAction {
-            configureRoots(project, service.wippyProjects)
+        try {
+//            backgroundWriteAction {
+                configureRoots(project, service.wippyProjects)
+//            }
+        } catch (t: Throwable) {
+            LOG.error(t)
         }
     }
 
@@ -32,14 +37,16 @@ class WippySourceRootConfigurator : ProjectActivity {
         val moduleManager = ModuleManager.getInstance(project)
         val module = moduleManager.modules.firstOrNull() ?: return
 
-        val rootModel = ModuleRootManager.getInstance(module).modifiableModel
+        val rootModel = ReadAction.compute< ModifiableRootModel, Throwable> { ModuleRootManager.getInstance(module).modifiableModel }
 
         try {
-            for (wp in wippyProjects) {
-                addSourceRoot(rootModel, wp)
-                excludeModulesDir(rootModel, wp)
+            for (wippyProject in wippyProjects) {
+                addSourceRoot(rootModel, wippyProject)
+                excludeModulesDir(rootModel, wippyProject)
             }
-            rootModel.commit()
+            WriteCommandAction.runWriteCommandAction(project) {
+                rootModel.commit()
+            }
             LOG.info("Configured source roots for ${wippyProjects.size} Wippy project(s)")
         } catch (e: Exception) {
             rootModel.dispose()

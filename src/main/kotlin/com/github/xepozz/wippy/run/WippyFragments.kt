@@ -5,20 +5,17 @@ import com.github.xepozz.wippy.tool.WippyTool
 import com.github.xepozz.wippy.tool.WippyToolConfigurable
 import com.github.xepozz.wippy.tool.WippyToolSettings
 import com.intellij.execution.ui.SettingsEditorFragment
-import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import com.intellij.ui.EditorTextField
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.ActionLink
 import com.intellij.ui.components.fields.ExpandableTextField
-import com.intellij.util.concurrency.NonUrgentExecutor
 import java.awt.BorderLayout
-import java.util.concurrent.Callable
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
 
@@ -65,11 +62,12 @@ object WippyFragments {
         project: Project,
         onNamespaceChanged: (String) -> Unit,
     ): SettingsEditorFragment<WippyRunConfiguration, *> {
-        val comboModel = DefaultComboBoxModel<String>()
-        val combo = ComboBox(comboModel).apply {
-            isEditable = true
-            addActionListener { onNamespaceChanged(selectedItem as? String ?: "") }
-        }
+//        val comboModel = DefaultComboBoxModel<String>()
+//        val combo = ComboBox(comboModel).apply {
+//            isEditable = true
+//            addActionListener { onNamespaceChanged(selectedItem as? String ?: "") }
+//        }
+        val textField = EditorTextField()
 //        val fragment = SettingsEditorFragment.createTag<WippyRunConfiguration>(
 //            "test.use.module.path",
 //            ExecutionBundle.message("do.not.use.module.path.tag"),
@@ -80,29 +78,28 @@ object WippyFragments {
 //
 //            })
 
-        val fragment = SettingsEditorFragment<WippyRunConfiguration, LabeledComponent<ComboBox<String>>>(
+        val fragment = SettingsEditorFragment<WippyRunConfiguration, LabeledComponent<*>>(
             "wippy.namespace",
             "Namespace",
             GROUP_COMMAND,
-            LabeledComponent.create(combo, "Namespace:", BorderLayout.WEST),
-            { config, _ -> combo.selectedItem = config.options.namespace },
-            { config, _ -> config.options.namespace = combo.selectedItem as? String ?: "" },
+            LabeledComponent.create(textField, "Namespace:", BorderLayout.WEST),
+            { config, _ -> textField.text = config.options.namespace ?:"" },
+            { config, _ -> config.options.namespace = textField.text },
             { true }
         ).apply { isRemovable = false }
 
 
-        ReadAction
-            .nonBlocking(Callable {
-                WippyEntryIndex.getNamespaces(project)
-//                        .forEach { comboModel.addElement(it) }
-                    .map { it }
-            })
-            .finishOnUiThread(ModalityState.current(), {
-                comboModel.removeAllElements()
-                comboModel.addAll(it)
-            })
-            .expireWith(fragment)
-            .submit(NonUrgentExecutor.getInstance())
+//        ReadAction
+//            .nonBlocking(Callable {
+//                WippyEntryIndex.getNamespaces(project)
+////                        .forEach { comboModel.addElement(it) }
+//                    .map { it }
+//            })
+//            .finishOnUiThread(ModalityState.current(), {
+//                comboModel.addAll(it)
+//            })
+//            .expireWith(fragment)
+//            .submit(NonUrgentExecutor.getInstance())
 
         return fragment
     }

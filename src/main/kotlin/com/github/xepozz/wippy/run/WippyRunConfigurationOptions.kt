@@ -3,6 +3,7 @@ package com.github.xepozz.wippy.run
 import com.intellij.execution.configurations.ModuleBasedConfigurationOptions
 
 class WippyRunConfigurationOptions : ModuleBasedConfigurationOptions() {
+    var workingDirectory by string("")
     var toolId by string("")
     var namespace by string("")
     var command by string("")

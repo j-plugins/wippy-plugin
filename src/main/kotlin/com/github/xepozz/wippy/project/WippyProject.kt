@@ -8,6 +8,7 @@ data class WippyProject(
     val lockFile: VirtualFile,
     val srcDir: VirtualFile?,
     val modulesDir: VirtualFile?,
+    val namespaces: Map<String, VirtualFile>,
 ) {
     val name: String get() = root.name
 

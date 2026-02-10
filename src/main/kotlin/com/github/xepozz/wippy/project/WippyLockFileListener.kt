@@ -28,7 +28,7 @@ class WippyLockFileListener : AsyncFileListener {
                 for (project in ProjectManager.getInstance().openProjects) {
                     if (project.isDisposed) continue
                     val service = WippyProjectService.getInstance(project)
-                    service.rescan()
+//                    service.rescan()
                     // Source roots will be reconfigured on next indexing pass
                     // or user can trigger manually via Wippy: Rescan Projects
                 }

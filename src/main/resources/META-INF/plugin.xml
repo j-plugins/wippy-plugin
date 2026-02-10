@@ -41,8 +41,15 @@
         <spellchecker.bundledDictionaryProvider
                 implementation="com.github.xepozz.wippy.SpellcheckingDictionaryProvider"/>
 
-<!--        <postStartupActivity-->
-<!--                implementation="com.github.xepozz.wippy.project.WippySourceRootConfigurator"/>-->
+        <executionTargetLanguageRuntimeType
+                implementation="com.github.xepozz.wippy.run.WippyRuntimeType"/>
+        <!--        <postStartupActivity-->
+        <!--                implementation="com.github.xepozz.wippy.project.WippySourceRootConfigurator"/>-->
+<!--        <moduleBuilder-->
+<!--                builderClass="com.github.xepozz.wippy.project.module.MoonshineModuleBuilder"/>-->
+<!--        <moduleBuilder builderClass="com.github.xepozz.wippy.project.module.WippyModuleBuilder" />-->
+        <moduleType
+                implementationClass="com.github.xepozz.wippy.project.module.WippyModuleType" />
 
         <vfs.asyncListener
                 implementation="com.github.xepozz.wippy.project.WippyLockFileListener"/>
@@ -54,11 +61,6 @@
         <applicationService
                 serviceImplementation="com.github.xepozz.wippy.lsp.WippyLspSettings"/>
 
-        <applicationConfigurable
-                parentId="tools"
-                instance="com.github.xepozz.wippy.lsp.WippyLspConfigurable"
-                id="com.github.xepozz.wippy.lsp.settings.WippyLspConfigurable"
-                displayName="Wippy LSP"/>
 
         <customUsageSearcher
                 implementation="com.github.xepozz.wippy.reference.WippyLuaFunctionUsageSearcher"/>
@@ -75,14 +77,23 @@
                 serviceImplementation="com.github.xepozz.wippy.tool.WippyToolSettings"/>
 
         <applicationConfigurable
-                parentId="tools"
+                groupId="tools"
+                instance="com.github.xepozz.wippy.lsp.WippyLspConfigurable"
+                id="com.github.xepozz.wippy.lsp.settings.WippyLspConfigurable"
+                displayName="Wippy LSP"/>
+
+        <applicationConfigurable dynamic=""
+                groupId="tools"
                 instance="com.github.xepozz.wippy.tool.WippyToolConfigurable"
                 id="com.github.xepozz.wippy.tool.WippyToolConfigurable"
                 displayName="Wippy"/>
 
+        <roots.watchedRootsProvider implementation="com.github.xepozz.wippy.project.MyWatchedRootsProvider"/>
         <runLineMarkerContributor
                 language="WippyLua"
                 implementationClass="com.github.xepozz.wippy.reference.WippyLuaFunctionRunLineMarkerContributor"/>
+
+        <sdkType implementation="com.github.xepozz.wippy.sdk.WippySdkType"/>
     </extensions>
 
     <actions>
