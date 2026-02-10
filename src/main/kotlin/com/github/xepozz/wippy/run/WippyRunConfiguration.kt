@@ -21,19 +21,7 @@ class WippyRunConfiguration(
     name: String
 ) : RunConfigurationBase<WippyRunConfigurationOptions>(project, factory, name) {
 
-    override fun getOptions(): WippyRunConfigurationOptions = super.getOptions() as WippyRunConfigurationOptions
-
-    var scriptPath: String?
-        get() = options.scriptPath
-        set(value) {
-            options.scriptPath = value
-        }
-
-    var functionName: String?
-        get() = options.functionName
-        set(value) {
-            options.functionName = value
-        }
+    public override fun getOptions(): WippyRunConfigurationOptions = super.getOptions() as WippyRunConfigurationOptions
 
     override fun getConfigurationEditor(): SettingsEditor<out RunConfiguration> = WippySettingsEditor()
 
@@ -47,10 +35,10 @@ class WippyRunConfiguration(
                 commandLine.exePath = "wippy"
 
                 val namespace = "app"
-                val command = scriptPath?.substringAfterLast("/")?.substringBeforeLast(".")
-                    ?: throw ExecutionException("Cannot determine script name from path: $scriptPath")
+                val command = options.scriptPath?.substringAfterLast("/")?.substringBeforeLast(".")
+                    ?: throw ExecutionException("Cannot determine script name from path: ${options.scriptPath}")
 
-                functionName?.let {
+                options.functionName?.let {
                     commandLine.addParameter("run")
                     commandLine.addParameter("-x")
                     commandLine.addParameter("$namespace:$command")

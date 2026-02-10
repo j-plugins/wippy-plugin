@@ -25,8 +25,8 @@ class WippyRunConfigurationProducer : LazyRunConfigurationProducer<WippyRunConfi
         val functionName = functionDef.node.findChildByType(WippyLuaTypes.IDENT)?.text ?: return false
         val virtualFile = functionDef.containingFile.virtualFile ?: return false
 
-        configuration.scriptPath = virtualFile.path
-        configuration.functionName = functionName
+        configuration.options.scriptPath = virtualFile.path
+        configuration.options.functionName = functionName
         configuration.name = "Wippy: $functionName"
         
         sourceElement.set(functionDef)
@@ -44,6 +44,6 @@ class WippyRunConfigurationProducer : LazyRunConfigurationProducer<WippyRunConfi
         val functionName = functionDef.node.findChildByType(WippyLuaTypes.IDENT)?.text ?: return false
         val virtualFile = functionDef.containingFile.virtualFile ?: return false
 
-        return configuration.scriptPath == virtualFile.path && configuration.functionName == functionName
+        return configuration.options.scriptPath == virtualFile.path && configuration.options.functionName == functionName
     }
 }

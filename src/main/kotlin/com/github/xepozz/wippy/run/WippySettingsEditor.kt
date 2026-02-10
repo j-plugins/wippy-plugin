@@ -20,13 +20,13 @@ class WippySettingsEditor : SettingsEditor<WippyRunConfiguration>() {
     }
 
     override fun resetEditorFrom(demoRunConfiguration: WippyRunConfiguration) {
-        scriptPathField.text = demoRunConfiguration.scriptPath ?: ""
-        functionNameField.text = demoRunConfiguration.functionName ?: ""
+        scriptPathField.text = demoRunConfiguration.options.scriptPath ?: ""
+        functionNameField.text = demoRunConfiguration.options.functionName ?: ""
     }
 
     override fun applyEditorTo(demoRunConfiguration: WippyRunConfiguration) {
-        demoRunConfiguration.scriptPath = scriptPathField.text
-        demoRunConfiguration.functionName = functionNameField.text
+        demoRunConfiguration.options.scriptPath = scriptPathField.text
+        demoRunConfiguration.options.functionName = functionNameField.text
     }
 
     override fun createEditor(): JComponent = myPanel
