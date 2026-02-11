@@ -14,8 +14,8 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.configurations.RuntimeConfigurationError
+import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessHandlerFactory
 import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.target.LanguageRuntimeType
@@ -29,6 +29,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
+import com.intellij.util.io.BaseOutputReader
 
 
 class WippyRunConfiguration(
@@ -122,7 +123,10 @@ class WippyRunConfiguration(
                     setWorkDirectory(opts.workingDirectory ?: project.basePath)
                 }
 
-                val handler = ProcessHandlerFactory.getInstance().createColoredProcessHandler(cmd)
+                val handler = object : ColoredProcessHandler(cmd) {
+                    override fun readerOptions(): BaseOutputReader.Options =
+                        BaseOutputReader.Options.forMostlySilentProcess()
+                }
                 ProcessTerminatedListener.attach(handler)
                 return handler
             }
