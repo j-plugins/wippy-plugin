@@ -39,5 +39,9 @@
         <codeInsight.lineMarkerProvider
                 language="yaml"
                 implementationClass="com.github.xepozz.wippy.reference.WippyMethodLineMarkerProvider"/>
+
+        <runLineMarkerContributor
+                language="yaml"
+                implementationClass="com.github.xepozz.wippy.run.WippyConfigRunLineMarkerContributor"/>
     </extensions>
 </idea-plugin>

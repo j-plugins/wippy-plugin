@@ -73,10 +73,10 @@ class WippyRunConfiguration(
         if (tool.type == WippyToolType.LOCAL && tool.path.isEmpty()) {
             throw RuntimeConfigurationError("Wippy binary path is not configured")
         }
-        if (opts.namespace.isNullOrEmpty()) {
+        if (!opts.command.isNullOrEmpty() && opts.namespace.isNullOrEmpty()) {
             throw RuntimeConfigurationError("Namespace is not specified")
         }
-        if (opts.command.isNullOrEmpty()) {
+        if (opts.command.isNullOrEmpty() && opts.configFile.isNullOrEmpty()) {
             throw RuntimeConfigurationError("Command is not specified")
         }
     }
@@ -104,8 +104,11 @@ class WippyRunConfiguration(
                     }
 
                     addParameter("run")
-                    addParameter("-x")
-                    addParameter("${opts.namespace}:${opts.command}")
+
+                    if (!opts.command.isNullOrEmpty()) {
+                        addParameter("-x")
+                        addParameter("${opts.namespace}:${opts.command}")
+                    }
 
                     if (!configFile.isNullOrEmpty()) {
                         addParameter("--config")
