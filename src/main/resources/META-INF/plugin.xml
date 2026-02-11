@@ -31,6 +31,9 @@
         <lang.commenter
                 language="WippyLua"
                 implementationClass="com.github.xepozz.wippy.lang.WippyLuaCommenter"/>
+        <lang.foldingBuilder
+                language="WippyLua"
+                implementationClass="com.github.xepozz.wippy.lang.WippyLuaFoldingBuilder"/>
         <lang.elementManipulator
                 forClass="com.github.xepozz.wippy.lang.psi.impl.WippyLuaElementImpl"
                 implementationClass="com.github.xepozz.wippy.lang.WippyElementManipulator"/>
