@@ -1,5 +1,6 @@
 package com.github.xepozz.wippy.lang.psi.impl
 
+import com.github.xepozz.wippy.lang.psi.WippyLuaLocalFuncDefStat
 import com.github.xepozz.wippy.lang.psi.WippyLuaLocalStat
 import com.github.xepozz.wippy.lang.psi.WippyLuaTypes
 import com.intellij.icons.AllIcons
@@ -7,6 +8,9 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.psi.PsiElement
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.SearchScope
+import com.intellij.psi.util.PsiTreeUtil
 
 abstract class WippyLuaLocalStatBaseImpl : WippyLuaElementImpl, WippyLuaLocalStat {
     constructor(node: ASTNode) : super(node)
@@ -24,8 +28,8 @@ abstract class WippyLuaLocalStatBaseImpl : WippyLuaElementImpl, WippyLuaLocalSta
 
     override fun getIcon(flags: Int) = AllIcons.Nodes.Function
 
-//    override fun getUseScope(): SearchScope {
-//        val block = PhpPsiUtil.getParentOfClass(this, PHPOpBlock::class.java) ?: return LocalSearchScope.EMPTY
-//        return LocalSearchScope(block)
-//    }
+    override fun getUseScope(): SearchScope {
+        val block = PsiTreeUtil.findFirstParent(this) { it is WippyLuaLocalFuncDefStat } ?: return LocalSearchScope.EMPTY
+        return LocalSearchScope(block)
+    }
 }

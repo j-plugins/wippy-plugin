@@ -53,7 +53,7 @@
 
 wippyLuaFile ::= block
 
-private block ::= (stat ';'?)* last_stat?
+block ::= (stat ';'?)* last_stat?
 //private block ::= (stat ';'?)+
 
 //// =============================================================================
