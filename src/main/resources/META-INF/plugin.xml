@@ -97,6 +97,7 @@
                 implementationClass="com.github.xepozz.wippy.reference.WippyLuaFunctionRunLineMarkerContributor"/>
 
         <sdkType implementation="com.github.xepozz.wippy.sdk.WippySdkType"/>
+        <highlightUsagesHandlerFactory implementation="com.github.xepozz.wippy.highlighting.WippyLuaHighlightUsagesHandlerFactory"/>
     </extensions>
 
     <actions>
