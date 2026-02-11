@@ -77,12 +77,12 @@
                 serviceImplementation="com.github.xepozz.wippy.tool.WippyToolSettings"/>
 
         <applicationConfigurable
-                groupId="tools"
+                parentId="com.github.xepozz.wippy.tool.WippyToolConfigurable"
                 instance="com.github.xepozz.wippy.lsp.WippyLspConfigurable"
                 id="com.github.xepozz.wippy.lsp.settings.WippyLspConfigurable"
-                displayName="Wippy LSP"/>
+                displayName="LSP"/>
 
-        <applicationConfigurable dynamic=""
+        <applicationConfigurable
                 groupId="tools"
                 instance="com.github.xepozz.wippy.tool.WippyToolConfigurable"
                 id="com.github.xepozz.wippy.tool.WippyToolConfigurable"
