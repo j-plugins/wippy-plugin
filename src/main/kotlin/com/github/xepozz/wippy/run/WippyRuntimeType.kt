@@ -16,7 +16,7 @@ import java.util.function.Supplier
 class WippyRuntimeType : LanguageRuntimeType<WippyRuntimeTargetConfiguration>(TYPE_ID) {
   override val icon = WippyIcons.WIPPY
 
-  override val displayName = "Gradle"
+  override val displayName = "Wippy"
 
   override val configurableDescription = MyBundle.message("gradle.target.configure.label")
 
@@ -45,13 +45,6 @@ class WippyRuntimeType : LanguageRuntimeType<WippyRuntimeTargetConfiguration>(TY
 
   companion object {
     @JvmStatic
-    val TYPE_ID = "GradleRuntime"
-
-    @JvmStatic
-    val PROJECT_FOLDER_VOLUME = VolumeDescriptor(WippyRuntimeType::class.qualifiedName + ":projectFolder",
-        MyBundle.message("gradle.target.execution.project.folder.label"),
-        MyBundle.message("gradle.target.execution.project.folder.description"),
-        MyBundle.message("gradle.target.execution.project.folder.title"),
-                                                 "")
+    val TYPE_ID = "WippyRuntime"
   }
 }
