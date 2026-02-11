@@ -43,13 +43,13 @@
 
         <executionTargetLanguageRuntimeType
                 implementation="com.github.xepozz.wippy.run.WippyRuntimeType"/>
-        <!--        <postStartupActivity-->
-        <!--                implementation="com.github.xepozz.wippy.project.WippySourceRootConfigurator"/>-->
-<!--        <moduleBuilder-->
-<!--                builderClass="com.github.xepozz.wippy.project.module.MoonshineModuleBuilder"/>-->
-<!--        <moduleBuilder builderClass="com.github.xepozz.wippy.project.module.WippyModuleBuilder" />-->
-        <moduleType
-                implementationClass="com.github.xepozz.wippy.project.module.WippyModuleType" />
+<!--        <backgroundPostStartupActivity-->
+<!--                implementation="com.github.xepozz.wippy.project.WippySourceRootConfigurator"/>-->
+        <!--        <moduleBuilder-->
+        <!--                builderClass="com.github.xepozz.wippy.project.module.MoonshineModuleBuilder"/>-->
+        <!--        <moduleBuilder builderClass="com.github.xepozz.wippy.project.module.WippyModuleBuilder" />-->
+        <moduleType id="wippy"
+                    implementationClass="com.github.xepozz.wippy.project.module.WippyModuleType"/>
 
         <vfs.asyncListener
                 implementation="com.github.xepozz.wippy.project.WippyLockFileListener"/>

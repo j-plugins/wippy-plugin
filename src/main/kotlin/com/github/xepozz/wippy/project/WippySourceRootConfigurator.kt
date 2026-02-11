@@ -1,94 +1,109 @@
 package com.github.xepozz.wippy.project
 
-import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.readAction
-import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.startup.ProjectActivity
-import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.jps.model.java.JavaSourceRootType
+import com.intellij.platform.backend.workspace.WorkspaceModel
+import com.intellij.platform.workspace.jps.entities.ContentRootEntity
+import com.intellij.platform.workspace.jps.entities.ExcludeUrlEntity
+import com.intellij.platform.workspace.jps.entities.ModuleEntity
+import com.intellij.platform.workspace.jps.entities.ModuleId
+import com.intellij.platform.workspace.jps.entities.ModuleTypeId
+import com.intellij.platform.workspace.jps.entities.SourceRootEntity
+import com.intellij.platform.workspace.jps.entities.SourceRootTypeId
+import com.intellij.workspaceModel.ide.legacyBridge.LegacyBridgeJpsEntitySourceFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+val sourceRootTypeId = SourceRootTypeId("wippy-resource")
+val wippyModuleTypeId = ModuleTypeId("wippy-module")
 
 class WippySourceRootConfigurator : ProjectActivity {
-
-    companion object {
-        private val LOG = logger<WippySourceRootConfigurator>()
-    }
 
     override suspend fun execute(project: Project) {
         val service = WippyProjectService.getInstance(project)
         val count = readAction { service.rescan() }
-
         if (count == 0) return
 
         try {
-//            backgroundWriteAction {
-                configureRoots(project, service.wippyProjects)
-//            }
+            configureModules(project, service.wippyProjects)
         } catch (t: Throwable) {
-            LOG.error(t)
+            thisLogger().error(t)
         }
     }
 
-    private fun configureRoots(project: Project, wippyProjects: List<WippyProject>) {
-        val moduleManager = ModuleManager.getInstance(project)
-        val module = moduleManager.modules.firstOrNull() ?: return
+    private suspend  fun configureModules(project: Project, wippyProjects: List<WippyProject>) {
+        val workspaceModel = WorkspaceModel.getInstance(project)
+        val vfu = workspaceModel.getVirtualFileUrlManager()
+        val snapshot = workspaceModel.currentSnapshot
 
-        val rootModel = ReadAction.compute< ModifiableRootModel, Throwable> { ModuleRootManager.getInstance(module).modifiableModel }
-
-        try {
-            for (wippyProject in wippyProjects) {
-                addSourceRoot(rootModel, wippyProject)
-                excludeModulesDir(rootModel, wippyProject)
+        val moduleEntities = wippyProjects.mapNotNull { wp ->
+            val moduleName = "wippy-${wp.root.name}"
+            if (ModuleId(moduleName) in snapshot) {
+                thisLogger().info("Module already exists: $moduleName")
+                return@mapNotNull null
             }
-            WriteCommandAction.runWriteCommandAction(project) {
-                rootModel.commit()
+
+            val baseDirUrl = vfu.getOrCreateFromUrl(wp.root.url)
+            val entitySource = LegacyBridgeJpsEntitySourceFactory
+                .getInstance(project)
+                .createEntitySourceForModule(baseDirUrl, null)
+
+            val sourceRoots = buildList {
+                wp.srcDir?.let {
+                    add(SourceRootEntity(vfu.getOrCreateFromUrl(it.url), sourceRootTypeId, entitySource))
+                }
             }
-            LOG.info("Configured source roots for ${wippyProjects.size} Wippy project(s)")
-        } catch (e: Exception) {
-            rootModel.dispose()
-            LOG.error("Failed to configure Wippy source roots", e)
+
+            val excludeUrls = buildList {
+                wp.modulesDir?.let {
+                    add(ExcludeUrlEntity(vfu.getOrCreateFromUrl(it.url), entitySource))
+                }
+            }
+
+            val contentRoot = ContentRootEntity(baseDirUrl, emptyList(), entitySource) {
+                this.sourceRoots = sourceRoots.toMutableList()
+                this.excludedUrls = excludeUrls.toMutableList()
+            }
+
+            ModuleEntity(moduleName, emptyList(), entitySource) {
+                this.contentRoots = mutableListOf(contentRoot)
+                this.type = wippyModuleTypeId
+            }
         }
-    }
 
-    private fun addSourceRoot(rootModel: ModifiableRootModel, wp: WippyProject) {
-        val srcDir = wp.srcDir ?: return
+        println("modules: $moduleEntities")
+        if (moduleEntities.isEmpty()) return
 
-        // Check if already registered
-        val existing = rootModel.contentEntries.flatMap { it.sourceFolders.toList() }
-        if (existing.any { it.file == srcDir }) {
-            LOG.info("Source root already registered: ${srcDir.path}")
-            return
+        ApplicationManager.getApplication().executeOnPooledThread{
+
+            CoroutineScope(Dispatchers.IO).launch {
+//            withContext(Dispatchers.IO) {
+//        ApplicationManager.getApplication().invokeAndWait {
+                println("inside invokeAndWait")
+//            WriteAction.run<Throwable> {
+                try {
+                println("inside WriteAction.run")
+                workspaceModel.update("Configure Wippy modules") { builder ->
+                    println("inside builder.addEntity")
+                    for (entity in moduleEntities) {
+                        builder.addEntity(entity)
+                        thisLogger().info("Created Wippy module: ${entity.name}")
+                    }
+
+                }
+                } catch (t: Throwable) {
+                    println("Error configuring Wippy modules: ${t.message}")
+                }
+
+
+            }
         }
+//            }
 
-        // Find or create content entry that covers this directory
-        val contentEntry = rootModel.contentEntries
-            .firstOrNull { covers(it.file, srcDir) }
-            ?: rootModel.addContentEntry(wp.root)
-
-        contentEntry.addSourceFolder(srcDir, JavaSourceRootType.SOURCE)
-        LOG.info("Added source root: ${srcDir.path}")
-    }
-
-    private fun excludeModulesDir(rootModel: ModifiableRootModel, wp: WippyProject) {
-        val modulesDir = wp.modulesDir ?: return
-
-        val contentEntry = rootModel.contentEntries
-            .firstOrNull { covers(it.file, modulesDir) }
-            ?: return
-
-        val alreadyExcluded = contentEntry.excludeFolders.any { it.file == modulesDir }
-        if (alreadyExcluded) return
-
-        contentEntry.addExcludeFolder(modulesDir)
-        LOG.info("Excluded modules dir: ${modulesDir.path}")
-    }
-
-    private fun covers(parent: VirtualFile?, child: VirtualFile): Boolean {
-        if (parent == null) return false
-        return child.path.startsWith(parent.path)
+        thisLogger().info("Configured ${wippyProjects.size} Wippy project(s)")
     }
 }
