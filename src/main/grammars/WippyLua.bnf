@@ -64,8 +64,7 @@ private stat ::= do_block_stat
     | while_stat
     | repeat_stat
     | if_stat
-    | numeric_for_stat
-    | generic_for_stat
+    | for_stat
     | func_def_stat
     | local_func_def_stat
     | local_stat
@@ -98,9 +97,10 @@ if_stat ::= 'if' expr 'then' block
     ('else' block)?
     'end' {pin=1}
 
-numeric_for_stat ::= 'for' IDENT '=' expr ',' expr (',' expr)? 'do' block 'end' {pin=1}
+for_stat ::= 'for' (for_stat_eq | for_stat_in) 'do' block 'end' {pin=1}
 
-generic_for_stat ::= 'for' ident_list 'in' expr_list 'do' block 'end' {pin=1}
+private for_stat_eq ::= IDENT '=' expr ',' expr (',' expr)?
+private for_stat_in ::= ident_list 'in' expr_list
 
 func_def_stat ::= 'function' func_name func_body {pin=1}
 
