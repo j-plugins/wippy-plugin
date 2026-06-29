@@ -53,8 +53,18 @@
 
 wippyLuaFile ::= block
 
-block ::= (stat ';'?)* last_stat?
+block ::= stat_with_recovery* last_stat?
 //private block ::= (stat ';'?)+
+
+private stat_with_recovery ::= (stat ';'?) { recoverWhile = stat_recover }
+
+// Error recovery: when a statement fails to parse, consume tokens until the next
+// statement boundary or a block-closing keyword, so the error stays local instead
+// of unwinding to the enclosing func_body.
+private stat_recover ::= !( 'end' | 'else' | 'elseif' | 'until'
+    | 'do' | 'while' | 'repeat' | 'if' | 'for' | 'function' | 'local'
+    | 'return' | 'break' | 'goto' | '::' | 'type' | 'interface'
+    | IDENT | '(' )
 
 //// =============================================================================
 //// Statements
@@ -88,16 +98,34 @@ break_stat   ::= 'break'
 
 do_block_stat ::= 'do' block 'end' {pin=1}
 
-while_stat ::= 'while' expr 'do' block 'end' {pin=1}
+while_stat ::= 'while' expr loop_do block 'end' {pin=1}
+
+// The body-introducing 'do' gets its own recovery: if it is missing or mistyped
+// (e.g. 'then'), skip the stray tokens up to the first real body statement so the
+// loop still consumes its own block and 'end' and block nesting stays balanced.
+private loop_do ::= 'do' { recoverWhile = stat_recover }
+
+// Same idea for the 'then' that opens an if/elseif block, but with a dedicated
+// recovery set: the wrong keyword here is 'do', which IS a statement-starter
+// (do-block). stat_recover lists 'do' as a boundary, so it would NOT eat a stray
+// 'do' and the body 'do ... end' would be mis-parsed as a nested do-block, stealing
+// the if's 'end'. then_recover is stat_recover MINUS 'do', so a misplaced 'do' is
+// consumed (exactly like loops consume a misplaced 'then') and nesting stays balanced.
+private block_then ::= 'then' { recoverWhile = then_recover }
+
+private then_recover ::= !( 'end' | 'else' | 'elseif' | 'until'
+    | 'while' | 'repeat' | 'if' | 'for' | 'function' | 'local'
+    | 'return' | 'break' | 'goto' | '::' | 'type' | 'interface'
+    | IDENT | '(' )
 
 repeat_stat ::= 'repeat' block 'until' expr {pin=1}
 
-if_stat ::= 'if' expr 'then' block
-    ('elseif' expr 'then' block)*
+if_stat ::= 'if' expr block_then block
+    ('elseif' expr block_then block)*
     ('else' block)?
     'end' {pin=1}
 
-for_stat ::= 'for' (for_stat_eq | for_stat_in) 'do' block 'end' {pin=1}
+for_stat ::= 'for' (for_stat_eq | for_stat_in) loop_do block 'end' {pin=1}
 
 private for_stat_eq ::= IDENT '=' expr ',' expr (',' expr)?
 private for_stat_in ::= ident_list 'in' expr_list
