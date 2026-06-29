@@ -7,6 +7,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="language-json.xml">com.intellij.modules.json</depends>
     <depends optional="true" config-file="language-yaml.xml">org.jetbrains.plugins.yaml</depends>
+    <depends optional="true" config-file="wippy-lsp.xml">com.intellij.modules.lsp</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
@@ -58,9 +59,6 @@
                 implementation="com.github.xepozz.wippy.project.WippyLockFileListener"/>
         <notificationGroup id="Wippy" displayType="BALLOON"/>
 
-        <platform.lsp.serverSupportProvider
-                implementation="com.github.xepozz.wippy.lsp.WippySocketLspServerSupportProvider"/>
-
         <applicationService
                 serviceImplementation="com.github.xepozz.wippy.lsp.WippyLspSettings"/>
 
@@ -80,12 +78,6 @@
                 serviceImplementation="com.github.xepozz.wippy.tool.WippyToolSettings"/>
 
         <applicationConfigurable
-                parentId="com.github.xepozz.wippy.tool.WippyToolConfigurable"
-                instance="com.github.xepozz.wippy.lsp.WippyLspConfigurable"
-                id="com.github.xepozz.wippy.lsp.settings.WippyLspConfigurable"
-                displayName="LSP"/>
-
-        <applicationConfigurable
                 groupId="tools"
                 instance="com.github.xepozz.wippy.tool.WippyToolConfigurable"
                 id="com.github.xepozz.wippy.tool.WippyToolConfigurable"
@@ -100,15 +92,6 @@
         <highlightUsagesHandlerFactory implementation="com.github.xepozz.wippy.highlighting.WippyLuaHighlightUsagesHandlerFactory"/>
     </extensions>
 
-    <actions>
-        <action
-                id="Wippy.RestartLsp"
-                class="com.github.xepozz.wippy.lsp.RestartLspAction"
-                text="Restart Wippy LSP"
-                description="Restart Wippy LSP server connection">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-        </action>
-    </actions>
     <actions>
         <group id="Wippy.ToolsMenu" text="Wippy" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="last"/>

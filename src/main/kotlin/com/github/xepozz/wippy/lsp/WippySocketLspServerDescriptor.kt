@@ -5,8 +5,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.lsp.api.LspCommunicationChannel
 import com.intellij.platform.lsp.api.ProjectWideLspServerDescriptor
 
-class WippySocketLspServerDescriptor(project: Project, private val port: Int = 7777) : 
-    ProjectWideLspServerDescriptor(project, "Wippy LSP") {
+class WippySocketLspServerDescriptor(
+    project: Project,
+    private val port: Int = WippyLspSettings.getInstance().state.port,
+) : ProjectWideLspServerDescriptor(project, "Wippy LSP") {
 
     override val lspCommunicationChannel: LspCommunicationChannel = LspCommunicationChannel.Socket(port, false)
 
@@ -33,28 +35,11 @@ class WippySocketLspServerDescriptor(project: Project, private val port: Int = 7
         )
     }
 
-    override fun findFileByUri(fileUri: String): VirtualFile? {
-        println("findFileByUri: $fileUri")
-        return super.findFileByUri(fileUri)
-            .also { println("findFileByUri result: $it") }
-    }
-
-    override fun findLocalFileByPath(path: String): VirtualFile? {
-        println("findLocalFileByPath: $path")
-        return super.findLocalFileByPath(path)
-            .also { println("findLocalFileByPath result: $it") }
-    }
-
-    override fun getFilePath(file: VirtualFile): String {
-        println("getFilePath: ${file.path}")
-        return super.getFilePath(file)
-            .also { println("getFilePath result: $it") }
-    }
-
     override fun getFileUri(file: VirtualFile): String {
-        println("getFileUri: ${file.path}")
-//        return super.getFileUri(file)
-        return "wippy://app:${file.nameWithoutExtension}"
-            .also { println("getFileUri result: ${it}") }
+        return WippyLspUriMapper.fileToUri(project, file) ?: super.getFileUri(file)
+    }
+
+    override fun findFileByUri(fileUri: String): VirtualFile? {
+        return WippyLspUriMapper.uriToFile(project, fileUri) ?: super.findFileByUri(fileUri)
     }
 }
