@@ -43,5 +43,15 @@
         <runLineMarkerContributor
                 language="yaml"
                 implementationClass="com.github.xepozz.wippy.run.WippyConfigRunLineMarkerContributor"/>
+
+        <codeInsight.lineMarkerProvider
+                language="yaml"
+                implementationClass="com.github.xepozz.wippy.hub.WippyHubLineMarkerProvider"/>
+
+        <intentionAction>
+            <language>yaml</language>
+            <className>com.github.xepozz.wippy.hub.WippyOpenHubIntention</className>
+            <category>Wippy</category>
+        </intentionAction>
     </extensions>
 </idea-plugin>
