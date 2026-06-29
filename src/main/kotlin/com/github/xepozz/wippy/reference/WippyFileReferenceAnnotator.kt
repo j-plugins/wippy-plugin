@@ -34,12 +34,17 @@ class WippyFileReferenceAnnotator : Annotator {
         val targetFile = containingDir.virtualFile.findFileByRelativePath(filePath)
 
         if (targetFile == null || targetFile.isDirectory) {
+            val fix = if (filePath.endsWith(".jet")) {
+                CreateWippyJetFileFix(filePath, containingDir)
+            } else {
+                CreateWippyLuaFileFix(filePath, containingDir)
+            }
             holder.newAnnotation(
                 HighlightSeverity.ERROR,
                 "Cannot resolve file: $filePath"
             )
                 .range(yamlScalar)
-                .withFix(CreateWippyLuaFileFix(filePath, containingDir))
+                .withFix(fix)
                 .create()
         }
     }

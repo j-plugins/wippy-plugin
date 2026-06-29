@@ -1,0 +1,149 @@
+{
+    parserClass = "com.github.xepozz.wippy.jet.parser.WippyJetParser"
+    extends = "com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+    psiClassPrefix = "WippyJet"
+    psiImplClassSuffix = "Impl"
+    psiPackage = "com.github.xepozz.wippy.jet.psi"
+    psiImplPackage = "com.github.xepozz.wippy.jet.psi.impl"
+
+    elementTypeHolderClass = "com.github.xepozz.wippy.jet.psi.WippyJetTypes"
+    elementTypeClass = "com.github.xepozz.wippy.jet.psi.WippyJetElementType"
+    tokenTypeClass = "com.github.xepozz.wippy.jet.psi.WippyJetTokenType"
+
+    extends(".*_expr") = expr
+
+    tokens = [
+        JET_OPEN='{{'  JET_CLOSE='}}'
+
+        KW_EXTENDS='extends'  KW_IMPORT='import'  KW_INCLUDE='include'  KW_BLOCK='block'
+        KW_END='end'  KW_YIELD='yield'  KW_CONTENT='content'  KW_IF='if'  KW_ELSE='else'
+        KW_RANGE='range'  KW_TRY='try'  KW_CATCH='catch'  KW_RETURN='return'
+        KW_AND='and'  KW_OR='or'  KW_NOT='not'  KW_NIL='nil'  KW_MSG='msg'  KW_TRANS='trans'
+
+        DECL=':='  ASSIGN='='  EQ='=='  NEQ='!='  GE='>='  LE='<='  GT='>'  LT='<'
+        PLUS='+'  MINUS='-'  MUL='*'  DIV='/'  MOD='%'  PIPE='|'  QUESTION='?'  COLON=':'
+        LPAREN='('  RPAREN=')'  LBRACK='['  RBRACK=']'  COMMA=','  SEMI=';'  UNDERSCORE='_'
+
+        BOOL='regexp:true|false'
+        IDENT='regexp:[a-zA-Z_]\w*'
+        FIELD='regexp:\.[a-zA-Z_0-9]*'
+        NUMBER='regexp:\d+(\.\d+)?'
+        STRING='regexp:"[^"]*"'
+        RAW_STRING='regexp:`[^`]*`'
+        JET_COMMENT='regexp:\{\*.*\*\}'
+        JET_CONTENT='JET_CONTENT'
+        JET_FRAGMENT='JET_FRAGMENT'
+    ]
+}
+
+// =============================================================================
+// Template structure
+// =============================================================================
+
+template ::= element *
+
+private element ::= block_construct | simple_action | JET_COMMENT | JET_CONTENT
+
+private block_construct ::= if_block | range_block | block_block | try_block
+
+end_tag ::= JET_OPEN KW_END JET_CLOSE
+
+// --- if / else if / else ---
+if_block ::= if_open element * else_if_clause * else_clause ? end_tag { pin = 1 }
+if_open ::= JET_OPEN KW_IF expr JET_CLOSE
+else_if_clause ::= else_if_open element *
+else_if_open ::= JET_OPEN KW_ELSE KW_IF expr JET_CLOSE
+else_clause ::= else_open element *
+else_open ::= JET_OPEN KW_ELSE JET_CLOSE
+
+// --- range ---
+range_block ::= range_open element * else_clause ? end_tag { pin = 1 }
+range_open ::= JET_OPEN KW_RANGE range_clause JET_CLOSE
+private range_clause ::= range_vars DECL expr | expr
+range_vars ::= IDENT ( COMMA IDENT ) ?
+
+// --- block ---
+block_block ::= block_open element * end_tag { pin = 1 }
+block_open ::= JET_OPEN KW_BLOCK IDENT LPAREN param_list ? RPAREN expr ? JET_CLOSE
+private param_list ::= param ( COMMA param ) *
+param ::= IDENT ( ASSIGN expr ) ?
+
+// --- try / catch ---
+try_block ::= try_open element * catch_clause ? end_tag { pin = 1 }
+try_open ::= JET_OPEN KW_TRY JET_CLOSE
+catch_clause ::= catch_open element *
+catch_open ::= JET_OPEN KW_CATCH IDENT ? JET_CLOSE
+
+// --- single actions ---
+simple_action ::= JET_OPEN action_body ? JET_CLOSE
+private action_body ::=
+      extends_stmt | import_stmt | include_stmt | yield_stmt | return_stmt | set_stmt | expr
+
+extends_stmt ::= KW_EXTENDS expr
+import_stmt ::= KW_IMPORT expr
+include_stmt ::= KW_INCLUDE expr ( COMMA ? expr ) ?
+yield_stmt ::= KW_YIELD ( KW_CONTENT | yield_call )
+yield_call ::= IDENT LPAREN arg_list ? RPAREN expr ?
+return_stmt ::= KW_RETURN expr
+set_stmt ::= set_target ( DECL | ASSIGN ) expr
+set_target ::= IDENT ( COMMA IDENT ) ?
+
+arg_list ::= expr ( COMMA expr ) *
+
+// =============================================================================
+// Expressions (Pratt, loosest binding first)
+// =============================================================================
+
+expr ::= pipe_expr
+    | ternary_expr
+    | logical_or_expr
+    | logical_and_expr
+    | comparative_group
+    | add_group
+    | mul_group
+    | unary_group
+    | postfix_group
+    | primary_group
+
+left pipe_expr ::= expr PIPE expr
+ternary_expr ::= expr QUESTION expr COLON expr
+left logical_or_expr ::= expr KW_OR expr
+left logical_and_expr ::= expr KW_AND expr
+
+private comparative_group ::= eq_expr | neq_expr | lt_expr | gt_expr | lte_expr | gte_expr
+left eq_expr ::= expr EQ expr
+left neq_expr ::= expr NEQ expr
+left lt_expr ::= expr LT expr
+left gt_expr ::= expr GT expr
+left lte_expr ::= expr LE expr
+left gte_expr ::= expr GE expr
+
+private add_group ::= add_expr | sub_expr
+left add_expr ::= expr PLUS expr
+left sub_expr ::= expr MINUS expr
+
+private mul_group ::= mul_expr | div_expr | mod_expr
+left mul_expr ::= expr MUL expr
+left div_expr ::= expr DIV expr
+left mod_expr ::= expr MOD expr
+
+private unary_group ::= unary_minus_expr | unary_not_expr
+unary_minus_expr ::= MINUS expr
+unary_not_expr ::= KW_NOT expr
+
+private postfix_group ::= call_expr | index_slice_expr | field_access_expr
+left call_expr ::= expr LPAREN arg_list ? RPAREN
+left index_slice_expr ::= expr LBRACK ( expr ( COLON expr ? ) ? | COLON expr ? ) RBRACK
+left field_access_expr ::= expr FIELD
+
+private primary_group ::= literal_expr | paren_expr | name_expr | field_expr | underscore_expr
+    | msg_expr | trans_expr
+
+literal_expr ::= KW_NIL | BOOL | NUMBER | STRING | RAW_STRING
+paren_expr ::= LPAREN expr RPAREN
+name_expr ::= IDENT
+field_expr ::= FIELD
+underscore_expr ::= UNDERSCORE
+msg_expr ::= KW_MSG LPAREN arg_list ? RPAREN
+trans_expr ::= KW_TRANS LPAREN arg_list ? RPAREN

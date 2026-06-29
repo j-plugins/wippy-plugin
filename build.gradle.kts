@@ -1,4 +1,6 @@
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.grammarkit.tasks.GenerateLexerTask
+import org.jetbrains.grammarkit.tasks.GenerateParserTask
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -122,10 +124,10 @@ sourceSets {
 
 tasks {
     compileKotlin {
-        dependsOn("generateLexer", "generateParser")
+        dependsOn("generateLexer", "generateParser", "generateJetLexer", "generateJetParser")
     }
     compileJava {
-        dependsOn("generateLexer", "generateParser")
+        dependsOn("generateLexer", "generateParser", "generateJetLexer", "generateJetParser")
     }
     generateLexer {
         sourceFile.set(file("src/main/grammars/WippyLua.flex"))
@@ -136,6 +138,16 @@ tasks {
         targetRootOutputDir.set(file("src/main/gen"))
         pathToParser.set("com/github/xepozz/wippy/lang/parser/WippyLuaParser.java")
         pathToPsiRoot.set("com/github/xepozz/wippy/lang/psi")
+    }
+    register<GenerateLexerTask>("generateJetLexer") {
+        sourceFile.set(file("src/main/grammars/Jet.flex"))
+        targetOutputDir.set(file("src/main/gen/com/github/xepozz/wippy/jet/lexer"))
+    }
+    register<GenerateParserTask>("generateJetParser") {
+        sourceFile.set(file("src/main/grammars/Jet.bnf"))
+        targetRootOutputDir.set(file("src/main/gen"))
+        pathToParser.set("com/github/xepozz/wippy/jet/parser/WippyJetParser.java")
+        pathToPsiRoot.set("com/github/xepozz/wippy/jet/psi")
     }
     wrapper {
         gradleVersion = providers.gradleProperty("gradleVersion").get()

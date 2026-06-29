@@ -1,0 +1,53 @@
+<!-- Jet template language. Loaded only when HTML support is present (it is the data language). -->
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType
+                name="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.WippyJetFileType"
+                fieldName="INSTANCE"
+                language="WippyJet"
+                extensions="jet"/>
+
+        <lang.parserDefinition
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.parser.WippyJetParserDefinition"/>
+
+        <lang.fileViewProviderFactory
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.file.WippyJetFileViewProviderFactory"/>
+
+        <lang.ast.factory
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.parser.WippyJetAstFactory"/>
+
+        <lang.syntaxHighlighterFactory
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.highlighting.WippyJetSyntaxHighlighterFactory"/>
+
+        <colorSettingsPage
+                implementation="com.github.xepozz.wippy.jet.highlighting.WippyJetColorSettingsPage"/>
+
+        <highlightErrorFilter
+                implementation="com.github.xepozz.wippy.jet.highlighting.WippyJetErrorFilter"/>
+
+        <lang.braceMatcher
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.WippyJetBraceMatcher"/>
+
+        <lang.foldingBuilder
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.WippyJetFoldingBuilder"/>
+
+        <lang.commenter
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.WippyJetCommenter"/>
+
+        <completion.contributor
+                language="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.completion.WippyJetCompletionContributor"/>
+
+        <psi.referenceContributor
+                language="WippyJet"
+                implementation="com.github.xepozz.wippy.jet.reference.WippyJetReferenceContributor"/>
+    </extensions>
+</idea-plugin>

@@ -8,6 +8,7 @@
     <depends optional="true" config-file="language-json.xml">com.intellij.modules.json</depends>
     <depends optional="true" config-file="language-yaml.xml">org.jetbrains.plugins.yaml</depends>
     <depends optional="true" config-file="wippy-lsp.xml">com.intellij.modules.lsp</depends>
+    <depends optional="true" config-file="language-jet.xml">com.intellij.modules.html</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
