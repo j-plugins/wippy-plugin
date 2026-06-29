@@ -1,6 +1,11 @@
 package com.github.xepozz.wippy.index
 
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.indexing.FileBasedIndexExtension
@@ -19,6 +24,8 @@ import java.io.DataOutput
 class WippyEntryIndex : FileBasedIndexExtension<String, List<WippyEntryData>>() {
 
     companion object {
+        private val LOG = logger<WippyEntryIndex>()
+
         val NAME = ID.create<String, List<WippyEntryData>>("WippyEntryIndex")
 
         fun getNamespaces(project: Project): Set<String> {
@@ -56,11 +63,45 @@ class WippyEntryIndex : FileBasedIndexExtension<String, List<WippyEntryData>>() 
             }
             return result
         }
+
+        fun isWippyTestFile(project: Project, file: VirtualFile): Boolean {
+            if (DumbService.isDumb(project)) return false
+
+            var dir = file.parent
+            var indexFile: VirtualFile? = null
+            while (dir != null) {
+                val candidate = dir.findChild("_index.yaml")
+                if (candidate != null) {
+                    indexFile = candidate
+                    break
+                }
+                dir = dir.parent
+            }
+            val indexDir = dir ?: return false
+            indexFile ?: return false
+
+            val relativePath = VfsUtilCore.getRelativePath(file, indexDir, '/') ?: return false
+
+            return try {
+                val data = FileBasedIndex.getInstance().getFileData(NAME, indexFile, project)
+                val match = data.values.flatten().firstOrNull { entry ->
+                    entry.kind == "function.lua" &&
+                        entry.metaType == "test" &&
+                        entry.sourceFile?.removePrefix("file://") == relativePath
+                }
+                if (match != null) {
+                    LOG.debug("[WippyEntryIndex] test file match: ${file.path} -> entry ${match.name}")
+                }
+                match != null
+            } catch (e: IndexNotReadyException) {
+                false
+            }
+        }
     }
 
     override fun getName() = NAME
 
-    override fun getVersion() = 3
+    override fun getVersion() = 4
 
     override fun dependsOnFileContent() = true
 
@@ -97,6 +138,7 @@ class WippyEntryIndex : FileBasedIndexExtension<String, List<WippyEntryData>>() 
             val kind = mapping.getKeyValueByKey("kind")?.valueText ?: ""
             val meta = mapping.getKeyValueByKey("meta")?.value as? YAMLMapping
             val command = meta?.getKeyValueByKey("command")?.value as? YAMLMapping
+            val metaType = meta?.getKeyValueByKey("type")?.valueText
             val source = mapping.getKeyValueByKey("source")?.valueText
             val method = mapping.getKeyValueByKey("method")?.valueText
 
@@ -107,6 +149,7 @@ class WippyEntryIndex : FileBasedIndexExtension<String, List<WippyEntryData>>() 
                 commandShort = command?.getKeyValueByKey("short")?.valueText,
                 sourceFile = source,
                 method = method,
+                metaType = metaType,
             )
         }
 

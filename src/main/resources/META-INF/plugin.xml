@@ -74,6 +74,8 @@
         <fileBasedIndex
                 implementation="com.github.xepozz.wippy.index.WippyEntryIndex"/>
 
+        <iconProvider implementation="com.github.xepozz.wippy.icons.WippyTestFileIconProvider"/>
+
         <applicationService
                 serviceImplementation="com.github.xepozz.wippy.tool.WippyToolSettings"/>
 

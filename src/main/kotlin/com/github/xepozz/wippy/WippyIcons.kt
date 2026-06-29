@@ -8,4 +8,7 @@ import com.intellij.openapi.util.IconLoader
 object WippyIcons {
     @JvmField
     val WIPPY = IconLoader.getIcon("/icons/wippy/icon.svg", this::class.java)
+
+    @JvmField
+    val WIPPY_TEST = IconLoader.getIcon("/icons/wippy/icon_test.svg", this::class.java)
 }

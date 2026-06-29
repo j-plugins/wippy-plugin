@@ -10,6 +10,7 @@ data class WippyEntryData(
     val commandShort: String?,
     val sourceFile: String?,
     val method: String?,
+    val metaType: String?,
 ) {
     fun write(out: DataOutput) {
         out.writeUTF(name)
@@ -18,6 +19,7 @@ data class WippyEntryData(
         out.writeUTF(commandShort ?: "")
         out.writeUTF(sourceFile ?: "")
         out.writeUTF(method ?: "")
+        out.writeUTF(metaType ?: "")
     }
 
     companion object {
@@ -29,6 +31,7 @@ data class WippyEntryData(
                 commandShort = input.readUTF().ifEmpty { null },
                 sourceFile = input.readUTF().ifEmpty { null },
                 method = input.readUTF().ifEmpty { null },
+                metaType = input.readUTF().ifEmpty { null },
             )
         }
     }
