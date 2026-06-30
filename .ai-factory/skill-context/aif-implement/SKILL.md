@@ -31,6 +31,11 @@ The default Gradle daemon OOMs on Metaspace on this project. Prefer scoped tasks
 (`Language` + `TemplateLanguage`, `MultiplePsiFilesPerDocumentFileViewProvider` +
 `ConfigurableTemplateLanguageFileViewProvider`, `TemplateDataElementType` with the lexer's
 outer-content token + an outer fragment token, `ASTFactory` returning `OuterLanguageElementImpl`).
-Cache the `TemplateDataElementType` per data-language. Register the HTML dependency as optional
-(`<depends optional="true" config-file="language-<x>.xml">com.intellij.modules.html</depends>`)
-and put the language's extensions in that config file. Reference: JetBrains Handlebars plugin.
+Cache the `TemplateDataElementType` per data-language. Register the HTML/XML dependency as optional
+(`<depends optional="true" config-file="language-<x>.xml">com.intellij.modules.xml</depends>`)
+and put the language's extensions in that config file. **Use `com.intellij.modules.xml`, NOT
+`com.intellij.modules.html`** — the latter does NOT exist as a module alias in IntelliJ 2025.2
+(HTML is the `HtmlTools` plugin; `HTMLLanguage` ships with the XML module). A wrong/absent optional
+`<depends>` makes the config file silently not load, so the file type never registers and files
+open as plain text — diagnose via `build/idea-sandbox/*/log/idea.log` and the resolved-modules list.
+Reference: JetBrains Handlebars plugin.
