@@ -27,6 +27,10 @@
         <colorSettingsPage
                 implementation="com.github.xepozz.wippy.jet.highlighting.WippyJetColorSettingsPage"/>
 
+        <editorHighlighterProvider
+                filetype="WippyJet"
+                implementationClass="com.github.xepozz.wippy.jet.highlighting.WippyJetEditorHighlighterProvider"/>
+
         <highlightErrorFilter
                 implementation="com.github.xepozz.wippy.jet.highlighting.WippyJetErrorFilter"/>
 
