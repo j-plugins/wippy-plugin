@@ -8,7 +8,7 @@ class WippyJetFileType : LanguageFileType(WippyJetLanguage.INSTANCE) {
     override fun getName() = "WippyJet"
     override fun getDescription() = "Wippy Jet template"
     override fun getDefaultExtension() = "jet"
-    override fun getIcon(): Icon = WippyIcons.WIPPY
+    override fun getIcon(): Icon = WippyIcons.JET
 
     companion object {
         @JvmStatic

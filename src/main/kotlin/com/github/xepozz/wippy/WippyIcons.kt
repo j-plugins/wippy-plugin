@@ -11,4 +11,7 @@ object WippyIcons {
 
     @JvmField
     val WIPPY_TEST = IconLoader.getIcon("/icons/wippy/icon_test.svg", this::class.java)
+
+    @JvmField
+    val JET = IconLoader.getIcon("/icons/wippy/jet.svg", this::class.java)
 }
